@@ -2,7 +2,8 @@ clc
 clear all
 
 N = 3;                %number of Fourier orders
-L = 10; %number of layers
+L_real = 11;
+L = L_real + (L_real-1); %number of layers considering intersections
 
 periodx = 1300*10^(-9);
 periody = 1000*10^(-9);
@@ -12,17 +13,20 @@ w_narrow = 350*10^(-9);
 w=w_narrow*ones(L,1);
 w(L) = w_wide;
 
-h = zeros(L,1);
-h_standard = 800*10^(-9);
-h = h_standard*ones(L,1);
-%h(1) = 2*h_standard;
-%h(2) = 2*h_standard;
+
+h_layer = 600*10^(-9);
+h_intersection = 100*10^(-9);
+h = h_layer*ones(L,1);
+h(1) = 700*10^(-9);
+h(L) = 700*10^(-9);
+for i=2:L-1
+    if mod(i,2)==0
+        h(i) = h_intersection;
+    end
+end
 
 
-M = 2601;
-
-epsilon = zeros(M, M, L);
-
+M = 5200;
 
 n_SiO2 = 1.45;
 epsSiO2 = n_SiO2^2;
@@ -35,55 +39,61 @@ eps_air = 1.0;
 
 layers(L,:) = 'waveguide';
 for i = 1:(L-1)
-    if mod(L-1-i,2) == 0
-        layers(i,:) = 'yperiodic';
+    if mod(i,2) == 1
+        i_real = (i+1)/2;
+        if mod(L_real-1-i_real,2)==0
+            layers(i,:) = 'yperiodic';
+        else
+            layers(i,:) = 'xperiodic';
+        end
     else
-        layers(i,:) = 'xperiodic';
+        layers(i,:) = 'xycrossed';
     end
 end
         
 
-epsilon = eps_air*ones(M,M,L);
+epsilon_waveguide = eps_air*ones(M,M);
+epsilon_yperiodic = eps_air*ones(M,M);
+epsilon_xperiodic = eps_air*ones(M,M);
+epsilon_xycrossed = eps_air*ones(M,M);
 refIndices = [n_air n_SiO2];
 
 %in epsilon row is y, column is x
 %lowest layer has nlayer=1, top layer has nlayer=L
-x = zeros(M,L);
-y = zeros(M,L);
-for i=1:L
-    x(:,i) = (1:1:M)*periodx/M;
-    y(:,i) = (1:1:M)*periody/M;
-end
+x = (1:1:M)*periodx/M;
+y = (1:1:M)*periody/M;
 
 for i=1:M
     for j=1:M
-        if (x(i,L)<w(L)) %|| (periodx_top_real<x(i,3))&&(x(i,3)<=periodx_top_real+wx(3)) %||...
-                %(2*periodx_top_real<x(i,3))&&(x(i,3)<2*periodx_top_real+wx(3))
-            epsilon(j,i,L) = eps_resist;
+        %waveguide
+        if (x(i)<=w(L))
+            epsilon_waveguide(j,i) = eps_resist;
         end
-        if y(j,L-1)<w(L-1)
-            epsilon(j,i,L-1) = eps_resist;
+        %yperiodic
+        if (y(j)<=w(L-1))
+            epsilon_yperiodic(j,i) = eps_resist;
+        end 
+        %xperiodic
+        if (x(i)>(w(L)/2-w(L-2)/2) ) && (x(i)<=(w(L)/2+w(L-2)/2) )
+            epsilon_xperiodic(j,i) = eps_resist;
         end
-        if (x(i,L-2)>(w(L)/2-w(L-2)/2) ) && (x(i,L-2)<(w(L)/2+w(L-2)/2) )
-            epsilon(j,i,L-2) = eps_resist;
+        %xycrossed    
+        if (x(i)>(w(L)/2-w(L-2)/2) ) && (x(i)<=(w(L)/2+w(L-2)/2) )
+            epsilon_xycrossed(j,i) = eps_resist;
         end
-    end
-end
-for i = 1:(L-3)
-    if mod(abs(i-(L-1)),2) == 0
-        epsilon(:,:,i)=epsilon(:,:,L-1);
-    else
-        epsilon(:,:,i)=epsilon(:,:,L-2);
+        if (y(j)<=w(L-1))
+            epsilon_xycrossed(j,i) = eps_resist;
+        end        
     end
 end
 
-lmin = 1410*10^(-9);
-lmax = 1510*10^(-9);
-thetamin = 1.5*pi/180;
-thetamax = 5*pi/180;
+lmin = 1465*10^(-9);
+lmax = 1480*10^(-9);
+thetamin = 0.05*pi/180;
+thetamax = 0.50*pi/180;
 lambda = linspace(lmin, lmax, 300);
 [Nll,Nl] = size(lambda);
-theta = linspace(thetamin,thetamax,8);
+theta = linspace(thetamin,thetamax,10);
 [Ntt,Nt]=size(theta);
 %theta = [0.1 0.5 1]*pi/180;
 %Nt=3;
@@ -104,10 +114,31 @@ R = 1;
 eps11=zeros(P*Q,P*Q,L);
 eps22=zeros(P*Q,P*Q,L);
 eps33=zeros(P*Q,P*Q,L);
-for i=1:L
-    [eps11(:,:,i), eps22(:,:,i), eps33(:,:,i)] = FMM_eps123_new(epsilon(:,:,i),N,M);
-end
+[eps11_waveguide, eps22_waveguide, eps33_waveguide] = FMM_eps123_new(epsilon_waveguide,N,M);
+[eps11_yperiodic, eps22_yperiodic, eps33_yperiodic] = FMM_eps123_new(epsilon_yperiodic,N,M);
+[eps11_xperiodic, eps22_xperiodic, eps33_xperiodic] = FMM_eps123_new(epsilon_xperiodic,N,M);
+[eps11_xycrossed, eps22_xycrossed, eps33_xycrossed] = FMM_eps123_new(epsilon_xycrossed,N,M);
 
+eps11(:,:,L) = eps11_waveguide;
+eps22(:,:,L) = eps22_waveguide;
+eps33(:,:,L) = eps33_waveguide;
+for i=1:L-1
+    if strcmp(layers(i,:),'yperiodic')==1
+        eps11(:,:,i) = eps11_yperiodic;
+        eps22(:,:,i) = eps22_yperiodic;
+        eps33(:,:,i) = eps33_yperiodic;
+    end
+    if strcmp(layers(i,:),'xperiodic')==1
+        eps11(:,:,i) = eps11_xperiodic;
+        eps22(:,:,i) = eps22_xperiodic;
+        eps33(:,:,i) = eps33_xperiodic;
+    end
+    if strcmp(layers(i,:),'xycrossed')==1
+        eps11(:,:,i) = eps11_xycrossed;
+        eps22(:,:,i) = eps22_xycrossed;
+        eps33(:,:,i) = eps33_xycrossed;
+    end  
+end
 
 
 for i=1:Nl
@@ -156,20 +187,31 @@ end
 lambda = lambda*10^6;
 lmin = lmin*10^6;
 lmax = lmax*10^6;
-
-
-
-figure(1)
+%{
+figure(2)
+hold on
+plot(lambda, Rsum(:,1), 'b', lambda, Rsum(:,2)+0.5, 'g',...
+    lambda, Rsum(:,3)+1, 'r', 'LineWidth', 2)
+h5 = legend('theta=0.1','theta=0.5','theta=1',3);
+set(h5,'Interpreter','none')
+%title('W=',w*10^9,' nm, D=', period*10^9,' nm')
+axis tight
+axis([lmin lmax 0 2.5])
+set(gca,'fontsize', 18)
+hold off
+%}
 %{
 plot(lambda, Rsum(:,1), 'b', lambda, Rsum(:,2)+0.5, 'g',...
     lambda, Rsum(:,3)+1.0,'r','LineWidth', 2)
     %lambda, Rsum(:,4)+1.5, 'm', 'LineWidth', 2)
 h5 = legend('theta=0.1 deg','theta=0.5 deg','theta=1 deg',3);
 %}
+
+
 for i=1:Nt
     f=figure;
     plot(lambda, Rsum(:,i), 'b', 'LineWidth', 2)
-    %set(h5,'Interpreter','none')
+    set(h5,'Interpreter','none')
     axis tight
     ax = gca;
     ax.XAxis.MinorTick = 'on';
@@ -184,11 +226,11 @@ data = cat(2,llambda,Rsum(:,1));
 for i=2:Nt
     data = cat(2,data,Rsum(:,i));
 end
-save('10_layers_1.5_to_3_deg.mat','data');
+save('11_layers_right.mat','data');
+
 
 
 %{
-figure(2)
 tl = linspace(lmin,lmax,400);
 tt = linspace(thetamin, thetamax,40)*180/pi;
 [XI,YI] = meshgrid(tl,tt);
