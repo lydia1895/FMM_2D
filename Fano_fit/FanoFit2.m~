@@ -6,19 +6,19 @@ load('12_layers_BIC.mat','data')
 N=length(data(1,:))
 
 
-thetamin = 0.5;
-thetamax = 5;
+thetamin = 0.5*pi/180;
+thetamax = 5*pi/180;
 theta_full = linspace(thetamin,thetamax,10);
 
 xxdata=data(:,1);
-left = 1.332;
+left = 1.3330;
 right = 1.3358;
 [elem,num_elem]=min(abs(xxdata-left));
 [elem2,num_elem_2]=min(abs(xxdata-right));
 
 ddata = data(num_elem:num_elem_2,:);
 
-i=10;
+i=7;
 
 xdata=ddata(:,1);
 ydata=ddata(:,i+1)-min(ddata(:,i+1));
@@ -28,8 +28,8 @@ deriv = diff(ydata)./diff(xdata);
     center = xdata(ind);
     
     width = 0.0001;
-    q = -90;
-    H = 0.6;
+    q = 1200;
+    H = 0.5;
     A = 0;
     B = 0;%-13.3;
     C = 0;
@@ -48,7 +48,7 @@ x=lsqcurvefit(Fano,x0,xdata,ydata);
 
 
 %g=figure
-plot(theta_full,Q,'-sg','Linewidth',2)
+%plot(theta,Q,'-sg','Linewidth',2)
 theta(i) = theta_full(i);
 save('12_layers_BIC_results_1.mat','theta_full','Q','i')
 %end

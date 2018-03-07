@@ -2,7 +2,7 @@ clc
 clear all
 
 N = 3;                %number of Fourier orders
-L_real = 12;
+L_real = 15;
 L = L_real + (L_real-1); %number of layers considering intersections
 
 
@@ -91,13 +91,13 @@ for i=1:M
     end
 end
 
-lmin = 1334*10^(-9);
-lmax = 1336*10^(-9);
+lmin = 1330*10^(-9);
+lmax = 1340*10^(-9);
 thetamin = 0.5*pi/180;
-thetamax = 0.5*pi/180;
-lambda = linspace(lmin, lmax, 200);
+thetamax = 5*pi/180;
+lambda = linspace(lmin, lmax, 150);
 [Nll,Nl] = size(lambda);
-theta = linspace(thetamin,thetamax,1);
+theta = linspace(thetamin,thetamax,15);
 [Ntt,Nt]=size(theta);
 %theta = [0.1 0.5 1]*pi/180;
 %Nt=3;
@@ -123,7 +123,7 @@ eps33=zeros(P*Q,P*Q,L);
 [eps11_xperiodic, eps22_xperiodic, eps33_xperiodic] = FMM_eps123_new(epsilon_xperiodic,N,M);
 [eps11_xycrossed, eps22_xycrossed, eps33_xycrossed] = FMM_eps123_new(epsilon_xycrossed,N,M);
 %%%%%%%%
-optional_top_layer = 'yes';
+optional_top_layer = 'no';
 epsilon_top = eps_resist*ones(M,M);
 [eps11_top,eps22_top,eps33_top] = FMM_eps123_new(epsilon_top,N,M);
 %%%%%%%%
@@ -191,7 +191,7 @@ plot(lambda, Rsum(:,1), 'b', lambda, Rsum(:,2)+0.5, 'g',...
 h5 = legend('theta=0.1 deg','theta=0.5 deg','theta=1 deg',3);
 %}
 
-
+%{
 for i=1:Nt
     f=figure;
     plot(lambda, Rsum(:,i), 'b', lambda, Rsum_another_top(:,i)+0.5, 'm', 'LineWidth', 2)
@@ -210,8 +210,8 @@ data = cat(2,llambda,Rsum(:,1));
 for i=2:Nt
     data = cat(2,data,Rsum(:,i));
 end
-save('10_layers_BIC.mat','data');
-
+save('11_layers_right.mat','data');
+%}
 
 
 
@@ -220,22 +220,15 @@ tt = linspace(thetamin, thetamax,30)*180/pi;
 [XI,YI] = meshgrid(tl,tt);
 ZI = griddata(theta*180/pi,lambda,Rsum,YI,XI);
 figure;
+
+%pcolor(kx,ky,Rsum)
 pcolor(XI,YI,ZI)
 shading flat
+caxis([0 1])
 colormap('jet');
 colorbar;
 hold off
 
-tl = linspace(lmin,lmax,400);
-tt = linspace(thetamin, thetamax,30)*180/pi;
-[XI,YI] = meshgrid(tl,tt);
-ZI = griddata(theta*180/pi,lambda,Rsum_another_top,YI,XI);
-figure;
-pcolor(XI,YI,ZI)
-shading flat
-colormap('jet');
-colorbar;
-hold off
 
 
 %{
