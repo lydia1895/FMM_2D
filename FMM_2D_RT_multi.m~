@@ -1,4 +1,4 @@
-function [eta_R, eta_R_another_top] = FMM_2D_RT_multi(eps11,eps22,eps33,...
+function [eta_R, eta_T] = FMM_2D_RT_multi(eps11,eps22,eps33,...
     periodx, periody, h, lambda, theta, phi, refIndices, N, M, L,polarization,...
     layers, optional_top_layer, eps11_top, eps22_top, eps33_top)
 %
@@ -189,9 +189,9 @@ if strcmp(optional_top_layer,'yes')==1
     i=L-1;
     Rudi = new_recursion_refl_only(Rud_except_top, W(:,:,i), W_top, pplus(:,:,i), pminus_top, N);
     Rudtemp = Rudi;
-
-Rudtotal_another_top = new_recursion_refl_only(Rudtemp, W_top, K1, pplus_top, eye(2*NN,2*NN), N);
 end
+Rudtotal_another_top = new_recursion_refl_only(Rudtemp, W_top, K1, pplus_top, eye(2*NN,2*NN), N);
+
 
 
 i = N+1;
@@ -229,14 +229,12 @@ for i=1:NN
     R2(i) = u(i+NN)/exp(1j*kz1v(i)*(sum(h)-h(L)));
 end
 
-if strcmp(optional_top_layer,'yes')==1
-    u_another_top = Rudtotal_another_top*dlast;
-    R1_another_top = zeros(NN);
-    R2_another_top = zeros(NN);
-    for i=1:NN
-        R1_another_top(i) = u_another_top(i)/exp(1j*kz1v(i)*(sum(h)-h(L)));
-        R2_another_top(i) = u_another_top(i+NN)/exp(1j*kz1v(i)*(sum(h)-h(L)));
-    end
+u_another_top = Rudtotal_another_top*dlast;
+R1 = zeros(NN);
+R2 = zeros(NN);
+for i=1:NN
+    R1(i) = u(i)/exp(1j*kz1v(i)*(sum(h)-h(L)));
+    R2(i) = u(i+NN)/exp(1j*kz1v(i)*(sum(h)-h(L)));
 end
 %R1 = R(1:NN)/exp( 1j*gamma01*(sum(h)-h(L)) );        %u_last
 %R2 = R((NN+1):2*NN)/exp( 1j*gamma01*(sum(h)-h(L)) );
@@ -250,18 +248,11 @@ T2 = R_T((3*NN+1):4*NN);
 %}
 
 eta_R = zeros(NN,1);
-
-eta_R_another_top = zeros(NN,1);
+eta_T = zeros(NN,1);
 
 for i=1:NN
     if imag(kz1v(i))==0
-        eta_R(i) = A1(i,i)*(abs(R2(i)))^2 + B1(i,i)*(abs(R1(i)))^2 +...
-            C1(i,i)*( R1(i)*conj(R2(i))+R2(i)*conj(R1(i)) );
-        if strcmp(optional_top_layer,'yes')==1
-            eta_R_another_top(i) = A1(i,i)*(abs(R2_another_top(i)))^2 + B1(i,i)*(abs(R1_another_top(i)))^2 +...
-                C1(i,i)*( R1_another_top(i)*conj(R2_another_top(i))+...
-                R2_another_top(i)*conj(R1_another_top(i)) );
-        end
+        eta_R(i) = A1(i,i)*(abs(R2(i)))^2 + B1(i,i)*(abs(R1(i)))^2 + C1(i,i)*( R1(i)*conj(R2(i))+R2(i)*conj(R1(i)) );
     end
     %if imag(kz2v(i))==0
     %eta_T(i) = A2(i,i)*(abs(T2(i)))^2 + B2(i,i)*(abs(T1(i)))^2 + C2(i,i)*( T1(i)*conj(T2(i))+T2(i)*conj(T1(i)) );
