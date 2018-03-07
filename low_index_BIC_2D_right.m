@@ -1,6 +1,11 @@
 clc
 clear all
 
+% Find all windows of type figure, which have an empty FileName attribute.
+allPlots = findall(0, 'Type', 'figure', 'FileName', []);
+% Close.
+delete(allPlots);
+
 N = 3;                %number of Fourier orders
 L_real = 11;
 L = L_real + (L_real-1); %number of layers considering intersections
@@ -87,13 +92,13 @@ for i=1:M
     end
 end
 
-lmin = 1465*10^(-9);
-lmax = 1480*10^(-9);
-thetamin = 0.05*pi/180;
-thetamax = 0.50*pi/180;
-lambda = linspace(lmin, lmax, 300);
+lmin = 1420*10^(-9);
+lmax = 1470*10^(-9);
+thetamin = 1*pi/180;
+thetamax = 3*pi/180;
+lambda = linspace(lmin, lmax, 40);
 [Nll,Nl] = size(lambda);
-theta = linspace(thetamin,thetamax,10);
+theta = linspace(thetamin,thetamax,30);
 [Ntt,Nt]=size(theta);
 %theta = [0.1 0.5 1]*pi/180;
 %Nt=3;
@@ -211,7 +216,6 @@ h5 = legend('theta=0.1 deg','theta=0.5 deg','theta=1 deg',3);
 for i=1:Nt
     f=figure;
     plot(lambda, Rsum(:,i), 'b', 'LineWidth', 2)
-    set(h5,'Interpreter','none')
     axis tight
     ax = gca;
     ax.XAxis.MinorTick = 'on';
@@ -226,7 +230,7 @@ data = cat(2,llambda,Rsum(:,1));
 for i=2:Nt
     data = cat(2,data,Rsum(:,i));
 end
-save('11_layers_right.mat','data');
+save('11_layers_1.5_to_5.0_deg.mat','data');
 
 
 
