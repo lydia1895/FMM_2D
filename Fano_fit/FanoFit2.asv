@@ -1,49 +1,55 @@
 %function [ x ] = FanoFit2( data, width,q,H,A,B,C)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
-%clc
-%clear all
-% Find all windows of type figure, which have an empty FileName attribute.
 
-
-load('11_layers_0.05_to_0.50_deg.mat','data')
+load('4_layers_05_to_50.mat','data')
 N=length(data(1,:))
-xdata=data(:,1);%xdata=data(:,1);
-widthf = [0.0005 0.0005 0.0005 0.001 0.001 0.0008 0.0015 0.0015 0.002 0.002];
-Hf = [0.01 0.01 0.06 0.08 0.11 0.13 0.16 0.16 0.19 0.18];
-qf = linspace(0.5,3,11);
-qf(8)=qf(7);
-qf(5) = 0.5;
-for i=1:N-1
-%i=2;
-ydata=data(:,i+1)-min(data(:,i+1));
+
+
+thetamin = 0.5;
+thetamax = 5;
+theta_full = linspace(thetamin,thetamax,10);
+
+xxdata=data(:,1);
+left = 1.3460;
+right = 1.3466;
+[elem,num_elem]=min(abs(xxdata-left));
+[elem2,num_elem_2]=min(abs(xxdata-right));
+
+ddata = data(num_elem:num_elem_2,:);
+
+i=5;
+
+xdata=ddata(:,1);
+ydata=ddata(:,i+1)-min(ddata(:,i+1));
+
 deriv = diff(ydata)./diff(xdata);
     [~,ind]= min(deriv);
     center = xdata(ind);
     
-    width = widthf(i);
-    q = qf(i);
-    H = Hf(i);
+    width = 0.00002;
+    q = -15;
+    H = 0.0014;
     A = 0;
     B = 0;%-13.3;
     C = 0;
 %       w0    w    asymm
 x0 = [center,width,q,H,A,B,C];
 %for r/L=0.7 x0 = [center,width,q,0,0.3,2.25];
-%Fano = a+bx+c*x^2+H(q+2(x-x0)/w)^2/(1+4(x-x0)^2/w^2)
-Fano = @(x,xdata)(x(7)+x(6)*xdata+x(5)*xdata.^2+x(4)*(x(3)+2*(xdata-x(1))/x(2)).^2./(1+4*(xdata-x(1)).^2/(x(2)^2)));
+%Fano = a+bx+c*(q+2(x-x0)/w)^2/(1+4(x-x0)^2/w^2)
+Fano = @(x,xdata)(x(7)+x(6)*xdata+x(5)*xdata.^2+...
+    x(4)*(x(3)+2*(xdata-x(1))/x(2)).^2./(1+4*(xdata-x(1)).^2/(x(2)^2)));
 
 x=lsqcurvefit(Fano,x0,xdata,ydata);
   f=figure;
   plot(xdata,ydata,'-k',xdata,Fano(x,xdata),'-r');
   hold off
-  Q(i) = x(1)/x(2)
-end
+  Q(i) = abs(x(1)/x(2));
 
-theta = linspace(0.05,0.50,10);
-g=figure;
-plot(theta,Q);
-save('11_layers_0.05_to_0.50_deg.mat','data','theta','Q')
 
+%g=figure
+%plot(theta_full,Q,'-sg','Linewidth',2)
+theta(i) = theta_full(i);
+save('4_layers_05_to_50_results.mat','theta_full','Q','i')
 %end
 
