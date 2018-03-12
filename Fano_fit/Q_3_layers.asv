@@ -1,0 +1,22 @@
+
+load('3_layers_025_to_075_results.mat','Q')
+Q_1=Q;
+load('3_layers_05_to_50_results.mat','Q')
+Q_2 = Q;
+theta_1 = [0.5 0.75]
+theta_2 = linspace(1,5,9);
+theta_full = cat(2,theta_1,theta_2);
+Q_full_3_layers=cat(2,Q_1(2:3),Q_2(2:10));
+g3=figure
+plot(theta_full,Q_full_3_layers,'-sg','Linewidth',2)
+
+load('3_layers_05_to_50_results.mat','Q')
+Q_1=Q;
+load('3_layers_45_to_50_results.mat','Q')
+Q_2 = Q;
+theta_1 = [0.5 0.75]
+theta_2 = linspace(1,5,9);
+theta_full = cat(2,theta_1,theta_2);
+Q_full_3_layers=cat(2,Q_1(2:3),Q_2(2:10));
+g4=figure
+plot(theta_full,Q_full_3_layers,'-sg','Linewidth',2)
