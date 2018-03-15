@@ -3,17 +3,16 @@ clear all
 
 
 N = 3;                %number of Fourier orders
-L = 1;                 %number of layers
+L = 2;                 %number of layers
 periodx = 666;  %period of periodic layer
 periody = 666;  %period of periodic layer
 r = 242;        %disc radius
 a = periodx;  
-h = zeros(L,2);
-h(2) = 
+h = zeros(L,1);
+h(2) = 300;
 h(1) = 220;       %thickness of periodic layer
-%h(1) = 2*10^(-6);
-%h(1) = 10^(-3);
-M = 1001;               %number of modes for Fourier transform of epsilon
+
+M = 701;               %number of modes for Fourier transform of epsilon
 Mr = (r/a)*M;
 
 
@@ -25,7 +24,10 @@ lmax = 1500;
 Nl=30;
 lambda = linspace(lmin,lmax,Nl);
 
-n_media=1.66;
+n_media = 1.66;
+eps_media = n_media^2;
+n_prism = 3;
+eps_prism = n_prism^2;
 
 Si_dispersion = xlsread('silicon_cryst_500-1500nm.xlsx');
 Si_lambda = Si_dispersion(:,1)*1000;
@@ -37,29 +39,32 @@ for i=1:Nl
     [ll,num] = min( abs (lambda(i)-Si_lambda(:) ) );
     %llambda = lambda(i)
     %si_llambda = Si_lambda(num)
-    n_Si(i) = Si_dispersion(num,2); %+ 1j*Si_dispersion(num,3);
-    eps_Si(i) = Si_dispersion(num,5);% + 1j*Si_dispersion(num,6);
+    n_Si(i) = Si_dispersion(num,2)+ 1j*Si_dispersion(num,3);
+    eps_Si(i) = Si_dispersion(num,5) + 1j*Si_dispersion(num,6);
 end
 
-epsilon = zeros(M, M, Nl);
-
+epsilon = zeros(M, M, L, Nl);
+for i_lambda = 1:Nl
+    epsilon(:,:,2,i_lambda) = eps_media*ones(M,M);
+end
 for i=1:M
     for j=1:M
-        for i_lambda = 1:Nl
-            if ( ((i-i0)^2+(j-j0)^2) <= Mr^2)
-                epsilon(j,i,i_lambda) = eps_Si(i_lambda);
-            else
-                epsilon(j,i,i_lambda) = n_media^2;
-                
-            end
+        if ( ((i-i0)^2+(j-j0)^2) <= Mr^2)
+            epsilon(j,i,1,:) = eps_Si(:);
+        else
+            epsilon(j,i,1,:) = eps_media;
+            
         end
     end
 end
-refIndices = [n_media n_media];
+
+refIndices = [n_prism n_media];
 
 
-theta = 0*pi/180;
-Nt=1;
+thetamin = 30*pi/180;
+thetamax = 50*pi/180;
+Nt=30;
+theta = linspace(thetamin,thetamax,Nt);
 phi = 0*pi/180;
 Np=1;
 Rsum=zeros(Nl,Nt);
@@ -75,7 +80,7 @@ eps22=zeros(P*Q,P*Q,L,Nl);
 eps33=zeros(P*Q,P*Q,L,Nl);
 for i=1:L
     for k=1:Nl
-    [eps11(:,:,i,k), eps22(:,:,i,k), eps33(:,:,i,k)] = FMM_eps123_new(epsilon(:,:,k),N,M);
+    [eps11(:,:,i,k), eps22(:,:,i,k), eps33(:,:,i,k)] = FMM_eps123_new(epsilon(:,:,i,k),N,M);
     end
 end
 
@@ -88,16 +93,29 @@ for i=1:Nl
         eps33_t(:,:,:) = eps33(:,:,:,i);
     [eta_R, eta_T] = FMM_1D_TE_RT_multi(eps11_t,eps22_t,eps33_t,...
         periodx, periody, h, lambda(i), theta(j), phi(k), refIndices, N, M, L, polarization);
-    
+    lambda(i)
     Rsum(i,j) = sum(eta_R);
     Tsum(i,j) = sum(eta_T);
     end
     end
 end
 
-
+%{
 figure(1)
 plot(lambda, Rsum, 'g', lambda, Tsum, 'r', 'Linewidth', 2);
 %plot(lambda, transpose(Rsum), 'r', 'Linewidth', 2);
+hold off
+%}
+figure(1);
+pcolor(lambda/1000,theta*180/pi,transpose(Rsum))
+
+xlabel('lambda, mkm');
+ylabel('theta, deg');
+colormap('jet');
+colorbar;
+set(gca,'fontsize', 16)
+shading flat
+caxis([0 1])
+colorbar
 hold off
 

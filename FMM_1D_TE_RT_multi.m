@@ -53,7 +53,8 @@ pminus = zeros(2*NN,2*NN,L);
 
 
 for i=1:L
-    [Wt, pplust, pminust] = FMM_2D_gamma_e(eps11(:,:,i),eps22(:,:,i),eps33(:,:,i),alpha, beta, h(i),lambda,N);
+    [Wt, pplust, pminust] = FMM_2D_gamma_e(eps11(:,:,i),eps22(:,:,i),eps33(:,:,i),...
+        alpha, beta, h(i),lambda,N);
     %[gammat, Wt, pplust, pminust, eps] = FMM_1D_TE_RT_beta_e(alpha, beta,
     %epsilon(:,:,i), periodx, periody, h(i), lambda, theta, phi, refIndices, N, M);
     W(:,:,i) = Wt;
