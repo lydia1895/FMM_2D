@@ -4,13 +4,13 @@ clear all
 
 N = 3;                %number of Fourier orders
 L = 2;                 %number of layers
-periodx = 666;  %period of periodic layer
-periody = 666;  %period of periodic layer
-r = 242;        %disc radius
+periodx = 300;  %period of periodic layer
+periody = 300;  %period of periodic layer
+r = 100;        %disc radius
 a = periodx;  
 h = zeros(L,1);
 h(2) = 300;
-h(1) = 220;       %thickness of periodic layer
+h(1) = 100;       %thickness of periodic layer
 
 M = 701;               %number of modes for Fourier transform of epsilon
 Mr = (r/a)*M;
@@ -19,15 +19,16 @@ Mr = (r/a)*M;
 i0 = 1+floor(M/2);
 j0 = 1+floor(M/2);
 
-lmin = 1200;
-lmax = 1500;
-Nl=30;
+lmin = 1000;
+lmax = 1800;
+Nl=40;
 lambda = linspace(lmin,lmax,Nl);
 
-n_media = 1.66;
+n_media = 1.0;%1.66;
 eps_media = n_media^2;
-n_prism = 3;
-eps_prism = n_prism^2;
+n_substrate = 2.13;
+n_prism = 2.4;
+%eps_prism = n_prism^2;
 
 Si_dispersion = xlsread('silicon_cryst_500-1500nm.xlsx');
 Si_lambda = Si_dispersion(:,1)*1000;
@@ -58,12 +59,12 @@ for i=1:M
     end
 end
 
-refIndices = [n_prism n_media];
+refIndices = [n_prism n_substrate];
 
 
-thetamin = 30*pi/180;
-thetamax = 50*pi/180;
-Nt=30;
+thetamin = 20*pi/180;
+thetamax = 60*pi/180;
+Nt=40;
 theta = linspace(thetamin,thetamax,Nt);
 phi = 0*pi/180;
 Np=1;
@@ -136,7 +137,8 @@ set(gca,'fontsize', 16)
 shading flat
 caxis([0 1])
 colorbar
+hold on
 
 
-plot(frequency*n_prism,frequency,frequency*n_media,frequency,'Linewidth',2)
+plot(frequency*n_prism*a*2*10^3/c,frequency,'b',frequency*n_media*a*2*10^3/c,frequency,'k','Linewidth',4)
 hold off

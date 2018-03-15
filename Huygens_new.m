@@ -26,7 +26,7 @@ lambda = linspace(lmin,lmax,Nl);
 
 n_media = 1.66;
 eps_media = n_media^2;
-n_prism = 3;
+n_prism = 2.5;
 eps_prism = n_prism^2;
 
 Si_dispersion = xlsread('silicon_cryst_500-1500nm.xlsx');
@@ -119,3 +119,25 @@ caxis([0 1])
 colorbar
 hold off
 
+
+
+c = physconst('LightSpeed');
+h = 4.135666 * 10^(-15);
+kx = (2*a*n_prism./lambda)'*sin(theta);
+frequency = (c*10^(-3)./lambda');
+
+figure(2);
+pcolor(kx,frequency,Rsum)
+xlabel('kx, \pi/a');
+ylabel('frequency, THz');
+colormap('jet');
+colorbar;
+set(gca,'fontsize', 16)
+shading flat
+caxis([0 1])
+colorbar
+hold on
+
+
+plot(frequency*n_prism*a*2*10^3/c,frequency,'b',frequency*n_media*a*2*10^3/c,frequency,'k','Linewidth',4)
+hold off
