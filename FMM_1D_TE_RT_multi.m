@@ -1,4 +1,5 @@
-function [eta_R, eta_T] = FMM_1D_TE_RT_multi(eps11,eps22,eps33,periodx, periody, h, lambda, theta, phi, refIndices, N, M, L)
+function [eta_R, eta_T] = FMM_1D_TE_RT_multi(eps11,eps22,eps33,periodx, periody,...
+        h, lambda, theta, phi, refIndices, N, M, L, polarization)
 %
 % INPUT:
 % <epsilon>: vector with permitivity distribution
@@ -108,7 +109,7 @@ K2 = cat(1, K2_1, K2_2, K2_3, K2_4);   %'0' in Chapter 13, Li
 
 
 
-%{
+
 Smin1 = eye(4*NN,4*NN);
 S0 = new_recursion(Smin1, K2, W(:,:,1), eye(2*NN,2*NN), pminus(:,:,1), N);
 Stemp = S0;
@@ -119,8 +120,8 @@ if L>1
     end
 end
 Stotal = new_recursion(Stemp, W(:,:,L), K1, pplus(:,:,L), eye(2*NN,2*NN), N);
-%}
 
+%{
 Smin1 = eye(4*NN,4*NN);
 Rudmin1 = zeros(2*NN,2*NN);
 Rud0 = new_recursion_refl_only(Rudmin1, K2, W(:,:,1), eye(2*NN,2*NN), pminus(:,:,1), N);
@@ -132,17 +133,21 @@ if L>1
     end
 end
 Rudtotal = new_recursion_refl_only(Rudtemp, W(:,:,L), K1, pplus(:,:,L), eye(2*NN,2*NN), N);
-
+%}
 
 i = N+1;
 j = N+1;
 nul = i+(2*N+1)*(j-1);
-%TE modes
-I1 = -sin(phi);
-I2 = cos(phi);
-%TM modes
-%I1 = cos(phi)*cos(theta);
-%I2 = sin(phi)*cos(theta);
+if strcmp(polarization,'TE')==1
+    %TE modes
+    I1 = -sin(phi);
+    I2 = cos(phi);
+end
+if strcmp(polarization,'TM')==1
+    %TM modes
+    I1 = cos(phi)*cos(theta);
+    I2 = sin(phi)*cos(theta);
+end
 norm = A1(nul,nul)*abs(I2)^2 + B1(nul,nul)*abs(I1)^2 + C1(nul,nul)*( I1*conj(I2)+I2*conj(I1) );
 I1=I1/sqrt(norm);
 I2=I2/sqrt(norm);
@@ -155,7 +160,7 @@ dlast2 = zeros(NN,1);
 dlast1(nul) = I1*exp(1j*gamma01*sum(h));
 dlast2(nul) = I2*exp(1j*gamma01*sum(h));
 delta = cat(1,u01,u02,dlast1,dlast2);
-
+%{
 dlast = cat(1,dlast1,dlast2);
 u = Rudtotal*dlast;
 R1 = zeros(NN);
@@ -164,16 +169,17 @@ for i=1:NN
     R1(i) = u(i)/exp(1j*kz1v(i)*(sum(h)-h(L)));
     R2(i) = u(i+NN)/exp(1j*kz1v(i)*(sum(h)-h(L)));
 end
+%}
 %R1 = R(1:NN)/exp( 1j*gamma01*(sum(h)-h(L)) );        %u_last
 %R2 = R((NN+1):2*NN)/exp( 1j*gamma01*(sum(h)-h(L)) );
 
-%{
+
 R_T = Stotal*delta;
 R1 = R_T(1:NN)/exp( 1j*gamma01*(sum(h)-h(L)) );        %u_last
 R2 = R_T((NN+1):2*NN)/exp( 1j*gamma01*(sum(h)-h(L)) );
 T1 = R_T((2*NN+1):3*NN);  %d0
 T2 = R_T((3*NN+1):4*NN);
-%}
+
 
 eta_R = zeros(NN,1);
 eta_T = zeros(NN,1);
@@ -182,9 +188,9 @@ for i=1:NN
     if imag(kz1v(i))==0
     eta_R(i) = A1(i,i)*(abs(R2(i)))^2 + B1(i,i)*(abs(R1(i)))^2 + C1(i,i)*( R1(i)*conj(R2(i))+R2(i)*conj(R1(i)) );
     end
-    %if imag(kz2v(i))==0
-    %eta_T(i) = A2(i,i)*(abs(T2(i)))^2 + B2(i,i)*(abs(T1(i)))^2 + C2(i,i)*( T1(i)*conj(T2(i))+T2(i)*conj(T1(i)) );
-    %end
+    if imag(kz2v(i))==0
+    eta_T(i) = A2(i,i)*(abs(T2(i)))^2 + B2(i,i)*(abs(T1(i)))^2 + C2(i,i)*( T1(i)*conj(T2(i))+T2(i)*conj(T1(i)) );
+    end
 end
 
 end
