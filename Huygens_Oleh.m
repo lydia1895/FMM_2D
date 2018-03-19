@@ -44,6 +44,8 @@ for i=1:Nl
     eps_Si(i) = Si_dispersion(num,5) + 1j*Si_dispersion(num,6);
 end
 
+
+
 epsilon = zeros(M, M, L, Nl);
 for i_lambda = 1:Nl
     epsilon(:,:,2,i_lambda) = eps_media*ones(M,M);
