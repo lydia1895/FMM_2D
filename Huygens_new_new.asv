@@ -38,11 +38,11 @@ lmax = 2400;
 Nl=61;
 lambda = linspace(lmin,lmax,Nl);
 
-n_media = 1.5;
+n_media = 1.2;
 eps_media = n_media^2;
 n_prism = 2.5;
 eps_prism = n_prism^2;
-n_substrate = 1.5;
+n_substrate = 1.2;
 
 Si_dispersion = xlsread('silicon_cryst_500-1500nm.xlsx');
 Si_lambda = Si_dispersion(:,1)*1000;
@@ -82,6 +82,10 @@ eps33=zeros(P*Q,P*Q,L);
 
 [num1,num2] = size(Si_dispersion);
 eps_Si_final = Si_dispersion(num1,5) + 1j*Si_dispersion(num1,6);
+
+epsilon = zeros(M, M, L);
+refIndices = [n_prism n_substrate];
+epsilon(:,:,2) = eps_media*ones(M,M);
 for ii=1:M
     for jj=1:M
         if ( ((ii-i0)^2+(jj-j0)^2) <= Mr^2)
@@ -97,10 +101,10 @@ for nlayer=1:L
         FMM_eps123_new(epsilon(:,:,nlayer),N,M);
 end
 
-polarization = 'TE';
+polarization = 'TM';
 
 for i=1:Nl
-    %{
+    
     for ii=1:M
         for jj=1:M
             if ( ((ii-i0)^2+(jj-j0)^2) <= Mr^2)

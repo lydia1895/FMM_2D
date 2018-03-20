@@ -4,45 +4,39 @@ clear all
 
 N = 3;                %number of Fourier orders
 L = 2;                 %number of layers
-periodx = 675;  %period of periodic layer
-periody = 675;  %period of periodic layer
-r = 238;        %disc radius
+periodx = 300;  %period of periodic layer
+periody = 300;  %period of periodic layer
+r = 125;        %disc radius
 a = periodx;  
 h = zeros(L,1);
 h(2) = 300;
-h(1) = 220;       %thickness of periodic layer
+h(1) = 375;       %thickness of periodic layer
 
 M = 501;               %number of modes for Fourier transform of epsilon
 Mr = (r/a)*M;
 
 i0 = 1+floor(M/2);
 j0 = 1+floor(M/2);
-%{
-h = 250 nm
-a = 500 nm
-R = 170 nm
-n1 = 1 (top), n2 = 1.46 (substrate)
 
-Диапазоны: 950 - 1450 нм (50 шагов), 25 - 75 градусов (50 шагов).
-%}
 %%%%%%%%%%%%%%%%%%%%
 %{
-a = 675 nm
-R = 238 nm
-h = 220 nm
-n1 = n2 = 1.5
-Диапазон от 1000 до 1800 нм (80 шагов), угол от 20 до 80 (60 шагов).
+a = 300 nm
+H = 375 nm
+R = 125 nm
+n1 = n2 = 1.46
+
+Диапазон длин волн от 1100 до 1600 нм (50 шагов), угол от 25 до 60 градусов (35 шагов).
 %}
-lmin = 1800;
-lmax = 2400;
-Nl=61;
+lmin = 1100;
+lmax = 1600;
+Nl=51;
 lambda = linspace(lmin,lmax,Nl);
 
-n_media = 1;
+n_media = 1.46;
 eps_media = n_media^2;
 n_prism = 2.5;
 eps_prism = n_prism^2;
-n_substrate = 1;
+n_substrate = 1.46;
 
 Si_dispersion = xlsread('silicon_cryst_500-1500nm.xlsx');
 Si_lambda = Si_dispersion(:,1)*1000;
@@ -61,9 +55,9 @@ end
 
 
 
-thetamin = 20*pi/180;
-thetamax = 80*pi/180;
-Nt=61;
+thetamin = 25*pi/180;
+thetamax = 60*pi/180;
+Nt=36;
 theta = linspace(thetamin,thetamax,Nt);
 phi = 0*pi/180;
 Np=1;
@@ -86,6 +80,7 @@ eps_Si_final = Si_dispersion(num1,5) + 1j*Si_dispersion(num1,6);
 epsilon = zeros(M, M, L);
 refIndices = [n_prism n_substrate];
 epsilon(:,:,2) = eps_media*ones(M,M);
+%{
 for ii=1:M
     for jj=1:M
         if ( ((ii-i0)^2+(jj-j0)^2) <= Mr^2)
@@ -100,11 +95,11 @@ for nlayer=1:L
     [eps11(:,:,nlayer), eps22(:,:,nlayer), eps33(:,:,nlayer)] =...
         FMM_eps123_new(epsilon(:,:,nlayer),N,M);
 end
-
+%}
 polarization = 'TE';
 
 for i=1:Nl
-    %{
+    
     for ii=1:M
         for jj=1:M
             if ( ((ii-i0)^2+(jj-j0)^2) <= Mr^2)
@@ -119,7 +114,7 @@ for i=1:Nl
         [eps11(:,:,nlayer), eps22(:,:,nlayer), eps33(:,:,nlayer)] =...
             FMM_eps123_new(epsilon(:,:,nlayer),N,M);
     end
-    %}
+    
     for j=1:Nt
         for k=1:Np
             
