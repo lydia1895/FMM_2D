@@ -4,42 +4,39 @@ clear all
 
 N = 3;                %number of Fourier orders
 L = 2;                 %number of layers
-periodx = 300;  %period of periodic layer
-periody = 300;  %period of periodic layer
-r = 125;        %disc radius
+periodx = 360;  %period of periodic layer
+periody = 360;  %period of periodic layer
+r = 140;        %disc radius
 a = periodx;  
 h = zeros(L,1);
-h(2) = 300;
-h(1) = 375;       %thickness of periodic layer
+h(2) = 180;
+h(1) = 360;       %thickness of periodic layer
 
 M = 501;               %number of modes for Fourier transform of epsilon
 Mr = (r/a)*M;
 
 i0 = 1+floor(M/2);
 j0 = 1+floor(M/2);
-
-%%%%%%%%%%%%%%%%%%%%
 %{
-a = 300 nm
-H = 375 nm
-R = 125 nm
+a = H = 360 nm
+R = 140 nm
 n1 = n2 = 1.46
-
-Диапазон длин волн от 1100 до 1600 нм (50 шагов), угол от 25 до 60 градусов (35 шагов).
+Диапазон от 1200 до 1600 нм (60 шагов), угол от 20 до 80 (60 шагов). И поставь призму 2.3, например.
 %}
-lmin = 600;
-lmax = 1100;
-Nl=51;
+lmin = 1200;
+lmax = 1600;
+Nl=61;
 lambda = linspace(lmin,lmax,Nl);
 
 n_media = 1.46;
 eps_media = n_media^2;
-n_prism = 2.5;
+n_prism = 2.3;
 eps_prism = n_prism^2;
 n_substrate = 1.46;
 
 Si_dispersion = xlsread('silicon_cryst_500-1500nm.xlsx');
 Si_lambda = Si_dispersion(:,1)*1000;
+%{
 n_Si = zeros(Nl,1);
 eps_Si = zeros(Nl,1);
 
@@ -52,12 +49,12 @@ for i=1:Nl
     eps_Si(i) = Si_dispersion(num,5) + 1j*Si_dispersion(num,6);
 end
 
+%}
 
 
-
-thetamin = 25*pi/180;
-thetamax = 60*pi/180;
-Nt=36;
+thetamin = 20*pi/180;
+thetamax = 80*pi/180;
+Nt=61;
 theta = linspace(thetamin,thetamax,Nt);
 phi = 0*pi/180;
 Np=1;
@@ -80,6 +77,20 @@ eps_Si_final = Si_dispersion(num1,5) + 1j*Si_dispersion(num1,6);
 epsilon = zeros(M, M, L);
 refIndices = [n_prism n_substrate];
 epsilon(:,:,2) = eps_media*ones(M,M);
+for ii=1:M
+    for jj=1:M
+        if ( ((ii-i0)^2+(jj-j0)^2) <= Mr^2)
+            epsilon(jj,ii,1) = 12.25+1j;
+        else
+            epsilon(jj,ii,1) = eps_media;
+            
+        end
+    end
+end
+for nlayer=1:L
+    [eps11(:,:,nlayer), eps22(:,:,nlayer), eps33(:,:,nlayer)] =...
+        FMM_eps123_new(epsilon(:,:,nlayer),N,M);
+end
 %{
 for ii=1:M
     for jj=1:M
@@ -99,7 +110,7 @@ end
 polarization = 'TE';
 
 for i=1:Nl
-    
+    %{
     for ii=1:M
         for jj=1:M
             if ( ((ii-i0)^2+(jj-j0)^2) <= Mr^2)
@@ -110,11 +121,10 @@ for i=1:Nl
             end
         end
     end
-    for nlayer=1:L
-        [eps11(:,:,nlayer), eps22(:,:,nlayer), eps33(:,:,nlayer)] =...
-            FMM_eps123_new(epsilon(:,:,nlayer),N,M);
-    end
-    
+    nlayer = 1;
+    [eps11(:,:,nlayer), eps22(:,:,nlayer), eps33(:,:,nlayer)] =...
+        FMM_eps123_new(epsilon(:,:,nlayer),N,M);
+    %}   
     for j=1:Nt
         for k=1:Np
             
