@@ -1,4 +1,4 @@
-function [eta_R, eta_T] = FMM_1D_TE_RT_multi(eps11,eps22,eps33,periodx, periody,...
+function [eta_R, eta_T, eta_R_full, eta_T_full] = FMM_1D_TE_RT_multi(eps11,eps22,eps33,periodx, periody,...
         h, lambda, theta, phi, refIndices, N, M, L, polarization)
 %
 % INPUT:
@@ -192,6 +192,14 @@ for i=1:NN
     if imag(kz2v(i))==0
     eta_T(i) = A2(i,i)*(abs(T2(i)))^2 + B2(i,i)*(abs(T1(i)))^2 + C2(i,i)*( T1(i)*conj(T2(i))+T2(i)*conj(T1(i)) );
     end
+end
+for i=1:NN
+    
+    eta_R_full(i) = A1(i,i)*(abs(R2(i)))^2 + B1(i,i)*(abs(R1(i)))^2 +...
+        C1(i,i)*( R1(i)*conj(R2(i))+R2(i)*conj(R1(i)) );
+    eta_T_full(i) = A2(i,i)*(abs(T2(i)))^2 + B2(i,i)*(abs(T1(i)))^2 +...
+        C2(i,i)*( T1(i)*conj(T2(i))+T2(i)*conj(T1(i)) );
+    
 end
 
 end

@@ -4,13 +4,13 @@ clear all
 
 N = 3;                %number of Fourier orders
 L = 2;                 %number of layers
-periodx = 360;  %period of periodic layer
-periody = 360;  %period of periodic layer
-r = 140;        %disc radius
+periodx = 420;  %period of periodic layer
+periody = 420;  %period of periodic layer
+r = 180;        %disc radius
 a = periodx;  
 h = zeros(L,1);
 h(2) = 180;
-h(1) = 360;       %thickness of periodic layer
+h(1) = 300;       %thickness of periodic layer
 
 M = 501;               %number of modes for Fourier transform of epsilon
 Mr = (r/a)*M;
@@ -18,17 +18,21 @@ Mr = (r/a)*M;
 i0 = 1+floor(M/2);
 j0 = 1+floor(M/2);
 %{
-a = H = 360 nm
-R = 140 nm
-n1 = n2 = 1.46
-Диапазон от 1200 до 1600 нм (60 шагов), угол от 20 до 80 (60 шагов). И поставь призму 2.3, например.
+??? ???? ?????:
+a = 420 nm
+H = 300 nm
+R = 180 nm
+n1 = 1, n2 = 1.46
+
+?? 1300 ?? 1700 ??, ???? ?? 30 ?? 75 ????????.
+
 %}
-lmin = 1200;
-lmax = 1600;
-Nl=61;
+lmin = 1300;
+lmax = 1700;
+Nl=41;
 lambda = linspace(lmin,lmax,Nl);
 
-n_media = 1.46;
+n_media = 1;
 eps_media = n_media^2;
 n_prism = 2.3;
 eps_prism = n_prism^2;
@@ -36,7 +40,7 @@ n_substrate = 1.46;
 
 Si_dispersion = xlsread('silicon_cryst_500-1500nm.xlsx');
 Si_lambda = Si_dispersion(:,1)*1000;
-%{
+
 n_Si = zeros(Nl,1);
 eps_Si = zeros(Nl,1);
 
@@ -49,12 +53,12 @@ for i=1:Nl
     eps_Si(i) = Si_dispersion(num,5) + 1j*Si_dispersion(num,6);
 end
 
-%}
 
 
-thetamin = 20*pi/180;
-thetamax = 80*pi/180;
-Nt=61;
+
+thetamin = 30*pi/180;
+thetamax = 75*pi/180;
+Nt=46;
 theta = linspace(thetamin,thetamax,Nt);
 phi = 0*pi/180;
 Np=1;
@@ -77,10 +81,15 @@ eps_Si_final = Si_dispersion(num1,5) + 1j*Si_dispersion(num1,6);
 epsilon = zeros(M, M, L);
 refIndices = [n_prism n_substrate];
 epsilon(:,:,2) = eps_media*ones(M,M);
+for nlayer=2:2
+    [eps11(:,:,nlayer), eps22(:,:,nlayer), eps33(:,:,nlayer)] =...
+        FMM_eps123_new(epsilon(:,:,nlayer),N,M);
+end
+%{
 for ii=1:M
     for jj=1:M
         if ( ((ii-i0)^2+(jj-j0)^2) <= Mr^2)
-            epsilon(jj,ii,1) = 12.25+1j;
+            epsilon(jj,ii,1) = 12.2+1j*0.5;
         else
             epsilon(jj,ii,1) = eps_media;
             
@@ -91,6 +100,7 @@ for nlayer=1:L
     [eps11(:,:,nlayer), eps22(:,:,nlayer), eps33(:,:,nlayer)] =...
         FMM_eps123_new(epsilon(:,:,nlayer),N,M);
 end
+%}
 %{
 for ii=1:M
     for jj=1:M
@@ -107,10 +117,13 @@ for nlayer=1:L
         FMM_eps123_new(epsilon(:,:,nlayer),N,M);
 end
 %}
+
+phase_R = zeros(Nl,Nt);
+Rsum_full = zeros(Nl,Nt);
 polarization = 'TE';
 
 for i=1:Nl
-    %{
+    
     for ii=1:M
         for jj=1:M
             if ( ((ii-i0)^2+(jj-j0)^2) <= Mr^2)
@@ -124,15 +137,17 @@ for i=1:Nl
     nlayer = 1;
     [eps11(:,:,nlayer), eps22(:,:,nlayer), eps33(:,:,nlayer)] =...
         FMM_eps123_new(epsilon(:,:,nlayer),N,M);
-    %}   
+      
     for j=1:Nt
         for k=1:Np
             
-            [eta_R, eta_T] = FMM_1D_TE_RT_multi(eps11,eps22,eps33,...
+            [eta_R, eta_T, eta_R_full, eta_T_full] = FMM_1D_TE_RT_multi(eps11,eps22,eps33,...
                 periodx, periody, h, lambda(i), theta(j), phi(k), refIndices, N, M, L, polarization);
             
             Rsum(i,j) = sum(eta_R);
             Tsum(i,j) = sum(eta_T);
+            Rsum_full(i,j) = sum(eta_R_full);
+            phase_R(i,j) = angle(Rsum_full(i,j));
         end
     end
     lambda(i)
@@ -166,6 +181,7 @@ frequency = (c*10^(-3)./lambda');
 
 figure(2);
 pcolor(kx,frequency,Rsum)
+title('reflection')
 xlabel('kx, \pi/a');
 ylabel('frequency, THz');
 colormap('jet');
@@ -176,6 +192,24 @@ caxis([0 1])
 colorbar
 hold on
 
+plot(frequency*n_prism*a*2*10^3/c,frequency,'b',...
+    frequency*n_substrate*a*2*10^3/c,frequency,'k','Linewidth',4)
+hold off
 
-plot(frequency*n_prism*a*2*10^3/c,frequency,'b',frequency*n_substrate*a*2*10^3/c,frequency,'k','Linewidth',4)
+figure(3);
+pcolor(kx,frequency,phase_R*180/pi)
+title('phase_R')
+xlabel('kx, \pi/a');
+ylabel('frequency, THz');
+colormap('jet');
+colorbar;
+set(gca,'fontsize', 16)
+shading flat
+caxis([-0.5 0.5])
+hcb=colorbar
+title(hcb,'phase, deg')
+hold on
+
+plot(frequency*n_prism*a*2*10^3/c,frequency,'b',...
+    frequency*n_substrate*a*2*10^3/c,frequency,'k','Linewidth',4)
 hold off
