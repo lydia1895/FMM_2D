@@ -4,13 +4,13 @@ clear all
 
 N = 3;                %number of Fourier orders
 L = 2;                 %number of layers
-periodx = 420;  %period of periodic layer
-periody = 420;  %period of periodic layer
-r = 180;        %disc radius
+periodx = 360;  %period of periodic layer
+periody = 360;  %period of periodic layer
+r = 130;        %disc radius
 a = periodx;  
 h = zeros(L,1);
-h(2) = 180;
-h(1) = 300;       %thickness of periodic layer
+h(2) = 250;
+h(1) = 360;       %thickness of periodic layer
 
 M = 501;               %number of modes for Fourier transform of epsilon
 Mr = (r/a)*M;
@@ -18,21 +18,22 @@ Mr = (r/a)*M;
 i0 = 1+floor(M/2);
 j0 = 1+floor(M/2);
 %{
-??? ???? ?????:
-a = 420 nm
-H = 300 nm
-R = 180 nm
-n1 = 1, n2 = 1.46
+a = 360
+H = 360
+R = 130
+n1 = n2 = 1.46
 
-?? 1300 ?? 1700 ??, ???? ?? 30 ?? 75 ????????.
+???????? ?? 1300 ?? 1700, ???? ?? 35 ?? 80 ????????.
+
+????? 4 ???????? ? ??????? eps: ????????? ? ???? ??? ?? ? ?? ???????????.
 
 %}
 lmin = 1300;
 lmax = 1700;
-Nl=41;
+Nl=81;
 lambda = linspace(lmin,lmax,Nl);
 
-n_media = 1;
+n_media = 1.46;
 eps_media = n_media^2;
 n_prism = 2.3;
 eps_prism = n_prism^2;
@@ -56,9 +57,9 @@ end
 
 
 
-thetamin = 30*pi/180;
-thetamax = 75*pi/180;
-Nt=46;
+thetamin = 35*pi/180;
+thetamax = 80*pi/180;
+Nt=91;
 theta = linspace(thetamin,thetamax,Nt);
 phi = 0*pi/180;
 Np=1;
@@ -152,7 +153,22 @@ for i=1:Nl
     end
     lambda(i)
 end
+%{
+a = 360
+H = 360
+R = 130
+n1 = n2 = 1.46
 
+???????? ?? 1300 ?? 1700, ???? ?? 35 ?? 80 ????????.
+%}
+%save('MyMatrix.txt', 'A', '-ascii', '-double', '-tabs')
+%llambda = transpose(lambda);
+%ttheta = transpose(theta);
+%lt = cat(2,llambda,ttheta);
+save('TE_R_a_360_H_360_R_130_n1_1_46_n2_1_46.txt', 'Rsum', '-ascii', '-double', '-tabs')
+save('TE_phase_a_360_H_360_R_130_n1_1_46_n2_1_46.txt', 'phase_R','-ascii',  '-double', '-tabs')
+save('TE_lambda_theta_a_360_H_360_R_130_n1_1_46_n2_1_46.txt', 'lambda', 'theta','-ascii', '-double', '-tabs')
+save('TE_aa_360_H_360_R_130_n1_1_46_n2_1_46.mat', 'Rsum', 'phase_R', 'lambda', 'theta')
 %{
 figure(1)
 plot(lambda, Rsum, 'g', lambda, Tsum, 'r', 'Linewidth', 2);
@@ -205,7 +221,7 @@ colormap('jet');
 colorbar;
 set(gca,'fontsize', 16)
 shading flat
-caxis([-0.5 0.5])
+%caxis([-0.4 0])
 hcb=colorbar
 title(hcb,'phase, deg')
 hold on
