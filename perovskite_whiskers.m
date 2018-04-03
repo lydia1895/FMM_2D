@@ -4,25 +4,33 @@ clear all
 
 N = 5;                %number of Fourier orders
 L = 1;                 %number of layers
+
+%?????? 450, 500, 550 ??. ?????? ??????? 500 ??, ?????? 300 ??.
+%?????? ???? ????? 100 ??. 
+%? ???????? ???????? ????? ?????? ITO ? ???? ?????????? ??????????? ???????? 1.9.
+%???????? ???? ???? ????????? 530-560 ??.
+
 periodx = 550;  %period of periodic layer
 periody = 3000;  %period of periodic layer
 wx_etched = 100;
 wx_width = periodx - wx_etched;
 wy_width = 500;
 h = zeros(L,1);
+h(2) = 250;
 h(1) = 300;       %thickness of periodic layer
 
-M = 200;               %number of modes for Fourier transform of epsilon
+M = 90;               %number of modes for Fourier transform of epsilon
 x = (1:1:M)*periodx/M;
 y = (1:1:M)*periody/M;
 
 lmin = 501;
-lmax = 800;
-Nl=100;
+lmax = 700;
+Nl=200;
 lambda = linspace(lmin,lmax,Nl);
 
 n_air = 1.0;
 eps_air = n_air^2;
+%n_prism = 2.3*ones(Nl,1);
 
 n_Perovskite = zeros(Nl,1);
 eps_Perovskite = zeros(Nl,1);
@@ -41,20 +49,20 @@ for i=1:Nl
     eps_Perovskite(i) = n_Perovskite(i)^2;
     
     [ll,num2] = min( abs (lambda(i)-ITO_lambda(:) ) );
-    n_ITO(i) = ITO(num2,2)+ 1j*ITO(num2,3);
+    n_ITO(i) = ITO(num2,2);%+ 1j*ITO(num2,3);
     eps_ITO(i) = n_ITO(i)^2;
 end
 
-
-
 %{
-thetamin = 35*pi/180;
+thetamin = 0*pi/180;
 thetamax = 80*pi/180;
-Nt=91;
+Nt=41;
 theta = linspace(thetamin,thetamax,Nt);
 %}
-theta = 0.1*pi/180;
+
+theta = 0*pi/180;
 Nt=1;
+
 %{
 theta = [0.1 1 3]*pi/180;
 Nt = 3;
@@ -77,12 +85,18 @@ eps33=zeros(P*Q,P*Q,L);
 epsilon = zeros(M, M, L);
 nn_air = ones(Nl,1);
 refIndices = [nn_air n_ITO];
+n_substrate = n_ITO;
 
 
 %phase_R = zeros(Nl,Nt);
 %Rsum_full = zeros(Nl,Nt);
 polarization = 'TE';
-
+%{
+nlayer = 2;
+epsilon(:,:,nlayer) = eps_air*ones(M,M);
+[eps11(:,:,nlayer), eps22(:,:,nlayer), eps33(:,:,nlayer)] =...
+        FMM_eps123_new(epsilon(:,:,nlayer),N,M);
+%}
 for i=1:Nl
     
     for ii=1:M
@@ -107,8 +121,8 @@ for i=1:Nl
             
             Rsum(i,j) = sum(eta_R);
             Tsum(i,j) = sum(eta_T);
-            %Rsum_full(i,j) = sum(eta_R_full);
-            %phase_R(i,j) = angle(Rsum_full(i,j));
+            Rsum_full(i,j) = sum(eta_R_full);
+            phase_R(i,j) = angle(Rsum_full(i,j));
         end
     end
     lambda(i)
@@ -129,6 +143,7 @@ set(gca,'fontsize', 16)
 
 hold off
 %}
+
 figure(2)
 plot(lambda, 1-Rsum-Tsum, 'r', 'LineWidth', 2)
 axis tight
@@ -154,11 +169,11 @@ caxis([0 1])
 colorbar
 hold off
 
-
+a = periodx;
 
 c = physconst('LightSpeed');
 h = 4.135666 * 10^(-15);
-kx = (2*a*n_prism./lambda)'*sin(theta);
+kx = (2*a*n_prism(1)./lambda)'*sin(theta);
 frequency = (c*10^(-3)./lambda');
 
 figure(2);
@@ -174,8 +189,10 @@ caxis([0 1])
 colorbar
 hold on
 
-plot(frequency*n_prism*a*2*10^3/c,frequency,'b',...
-    frequency*n_substrate*a*2*10^3/c,frequency,'k','Linewidth',4)
+
+
+plot(frequency*n_prism(1)*a*2*10^3/c,frequency,'b',...
+    frequency*n_substrate(Nl)*a*2*10^3/c,frequency,'k','Linewidth',4)
 hold off
 
 figure(3);
@@ -192,7 +209,7 @@ hcb=colorbar
 title(hcb,'phase, deg')
 hold on
 
-plot(frequency*n_prism*a*2*10^3/c,frequency,'b',...
-    frequency*n_substrate*a*2*10^3/c,frequency,'k','Linewidth',4)
+plot(frequency*n_prism(1)*a*2*10^3/c,frequency,'b',...
+    frequency*n_substrate(1)*a*2*10^3/c,frequency,'k','Linewidth',4)
 hold off
 %}
