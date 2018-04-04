@@ -120,7 +120,7 @@ end
 
 phase_R = zeros(Nl,Nt);
 Rsum_full = zeros(Nl,Nt);
-polarization = 'TE';
+polarization = 'TM';
 
 for i=1:Nl
     
@@ -165,10 +165,10 @@ n1 = n2 = 1.46
 %llambda = transpose(lambda);
 %ttheta = transpose(theta);
 %lt = cat(2,llambda,ttheta);
-save('TE_R_a_360_H_360_R_134_n1_1_46_n2_1_46.txt', 'Rsum', '-ascii', '-double', '-tabs')
-save('TE_phase_a_360_H_360_R_134_n1_1_46_n2_1_46.txt', 'phase_R','-ascii',  '-double', '-tabs')
-save('TE_lambda_theta_a_360_H_360_R_134_n1_1_46_n2_1_46.txt', 'lambda', 'theta','-ascii', '-double', '-tabs')
-save('TE_a_360_H_360_R_134_n1_1_46_n2_1_46.mat', 'Rsum', 'phase_R', 'lambda', 'theta')
+save('TM_R_a_360_H_360_R_134_n1_1_46_n2_1_46.txt', 'Rsum', '-ascii', '-double', '-tabs')
+save('TM_phase_a_360_H_360_R_134_n1_1_46_n2_1_46.txt', 'phase_R','-ascii',  '-double', '-tabs')
+save('TM_lambda_theta_a_360_H_360_R_134_n1_1_46_n2_1_46.txt', 'lambda', 'theta','-ascii', '-double', '-tabs')
+save('TM_a_360_H_360_R_130_n1_1_46_n2_1_46.mat', 'Rsum', 'phase_R', 'lambda', 'theta')
 %{
 figure(1)
 plot(lambda, Rsum, 'g', lambda, Tsum, 'r', 'Linewidth', 2);
