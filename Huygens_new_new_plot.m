@@ -4,19 +4,13 @@ clear all
 
 N = 3;                %number of Fourier orders
 L = 2;                 %number of layers
-<<<<<<< HEAD
 periodx = 360;  %period of periodic layer
 periody = 360;  %period of periodic layer
-r = 134;        %disc radius
-=======
-periodx = 420;  %period of periodic layer
-periody = 420;  %period of periodic layer
-r = 184;        %disc radius
->>>>>>> b9a438f0ce9aadf00055bcb4fd97fe1595a4a1dd
+r = 130;        %disc radius
 a = periodx;  
 h = zeros(L,1);
 h(2) = 250;
-h(1) = 315;       %thickness of periodic layer
+h(1) = 360;       %thickness of periodic layer
 
 M = 501;               %number of modes for Fourier transform of epsilon
 Mr = (r/a)*M;
@@ -24,30 +18,22 @@ Mr = (r/a)*M;
 i0 = 1+floor(M/2);
 j0 = 1+floor(M/2);
 %{
-<<<<<<< HEAD
-Нужно посчитать ещё одну, похожую на метаповерхность №3, токо радиус R = 134 nm. Остальное также:
 a = 360
 H = 360
-R = 134
+R = 130
 n1 = n2 = 1.46
 
-Диапазон от 1300 до 1700, угол от 35 до 80 градусов
-=======
-a = 420
-H = 315
-R = 184
-n1 = 1
-n2 = 1.46
-????????: ?? 1350 ?? 1800, ?? 35 ?? 80. 
->>>>>>> b9a438f0ce9aadf00055bcb4fd97fe1595a4a1dd
+???????? ?? 1300 ?? 1700, ???? ?? 35 ?? 80 ????????.
+
+????? 4 ???????? ? ??????? eps: ????????? ? ???? ??? ?? ? ?? ???????????.
 
 %}
-lmin = 1350;
-lmax = 1800;
-Nl=91;
+lmin = 1300;
+lmax = 1700;
+Nl=81;
 lambda = linspace(lmin,lmax,Nl);
 
-n_media = 1.0;
+n_media = 1.46;
 eps_media = n_media^2;
 n_prism = 2.3;
 eps_prism = n_prism^2;
@@ -135,70 +121,27 @@ end
 
 phase_R = zeros(Nl,Nt);
 Rsum_full = zeros(Nl,Nt);
-polarization = 'TE';
+polarization = 'TM';
+load('TE_a_360_H_360_R_130_n1_1_46_n2_1_46.mat', 'Rsum', 'phase_R', 'lambda', 'theta')
 
-for i=1:Nl
-    
-    for ii=1:M
-        for jj=1:M
-            if ( ((ii-i0)^2+(jj-j0)^2) <= Mr^2)
-                epsilon(jj,ii,1) = eps_Si(i);
-            else
-                epsilon(jj,ii,1) = eps_media;
-                
-            end
-        end
-    end
-    nlayer = 1;
-    [eps11(:,:,nlayer), eps22(:,:,nlayer), eps33(:,:,nlayer)] =...
-        FMM_eps123_new(epsilon(:,:,nlayer),N,M);
-      
-    for j=1:Nt
-        for k=1:Np
-            
-            [eta_R, eta_T, eta_R_full, eta_T_full] = FMM_1D_TE_RT_multi(eps11,eps22,eps33,...
-                periodx, periody, h, lambda(i), theta(j), phi(k), refIndices, N, M, L, polarization);
-            
-            Rsum(i,j) = sum(eta_R);
-            Tsum(i,j) = sum(eta_T);
-            Rsum_full(i,j) = sum(eta_R_full);
-            phase_R(i,j) = angle(Rsum_full(i,j));
-        end
-    end
-    lambda(i)
-end
 %{
-<<<<<<< HEAD
-Нужно посчитать ещё одну, похожую на метаповерхность №3, токо радиус R = 134 nm. Остальное также:
 a = 360
 H = 360
-R = 134
+R = 130
 n1 = n2 = 1.46
 
-Диапазон от 1300 до 1700, угол от 35 до 80 градусов
-=======
-a = 420
-H = 315
-R = 184
-n1 = 1
-n2 = 1.46
->>>>>>> b9a438f0ce9aadf00055bcb4fd97fe1595a4a1dd
+???????? ?? 1300 ?? 1700, ???? ?? 35 ?? 80 ????????.
 %}
 %save('MyMatrix.txt', 'A', '-ascii', '-double', '-tabs')
 %llambda = transpose(lambda);
 %ttheta = transpose(theta);
 %lt = cat(2,llambda,ttheta);
-<<<<<<< HEAD
-save('TE_R_a_360_H_360_R_134_n1_1_46_n2_1_46.txt', 'Rsum', '-ascii', '-double', '-tabs')
-save('TE_phase_a_360_H_360_R_134_n1_1_46_n2_1_46.txt', 'phase_R','-ascii',  '-double', '-tabs')
-save('TE_lambda_theta_a_360_H_360_R_134_n1_1_46_n2_1_46.txt', 'lambda', 'theta','-ascii', '-double', '-tabs')
-save('TE_a_360_H_360_R_134_n1_1_46_n2_1_46.mat', 'Rsum', 'phase_R', 'lambda', 'theta')
-=======
-save('TE_R_a_420_H_315_R_184_n1_1_n2_1_46.txt', 'Rsum', '-ascii', '-double', '-tabs')
-save('TE_phase_a_420_H_315_R_184_n1_1_n2_1_46.txt', 'phase_R','-ascii',  '-double', '-tabs')
-save('TE_lambda_theta_a_420_H_315_R_184_n1_1_n2_1_46.txt', 'lambda', 'theta','-ascii', '-double', '-tabs')
-save('TE_a_420_H_315_R_184_n1_1_n2_1_46.mat', 'Rsum', 'phase_R', 'lambda', 'theta')
->>>>>>> b9a438f0ce9aadf00055bcb4fd97fe1595a4a1dd
+%{
+save('TM_R_a_360_H_360_R_130_n1_1_46_n2_1_46.txt', 'Rsum', '-ascii', '-double', '-tabs')
+save('TM_phase_a_360_H_360_R_130_n1_1_46_n2_1_46.txt', 'phase_R','-ascii',  '-double', '-tabs')
+save('TM_lambda_theta_a_360_H_360_R_130_n1_1_46_n2_1_46.txt', 'lambda', 'theta','-ascii', '-double', '-tabs')
+save('TM_a_360_H_360_R_130_n1_1_46_n2_1_46.mat', 'Rsum', 'phase_R', 'lambda', 'theta')
+%}
 %{
 figure(1)
 plot(lambda, Rsum, 'g', lambda, Tsum, 'r', 'Linewidth', 2);
@@ -251,7 +194,7 @@ colormap('jet');
 colorbar;
 set(gca,'fontsize', 16)
 shading flat
-%caxis([-0.4 0])
+caxis([-0.1 0.1])
 hcb=colorbar
 title(hcb,'phase, deg')
 hold on
