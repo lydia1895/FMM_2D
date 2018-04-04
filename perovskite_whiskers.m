@@ -24,8 +24,8 @@ x = (1:1:M)*periodx/M;
 y = (1:1:M)*periody/M;
 
 lmin = 501;
-lmax = 700;
-Nl=200;
+lmax = 560;
+Nl=60;
 lambda = linspace(lmin,lmax,Nl);
 
 n_air = 1.0;
@@ -53,16 +53,16 @@ for i=1:Nl
     eps_ITO(i) = n_ITO(i)^2;
 end
 
-%{
-thetamin = 0*pi/180;
-thetamax = 80*pi/180;
-Nt=41;
-theta = linspace(thetamin,thetamax,Nt);
-%}
 
+thetamin = 0*pi/180;
+thetamax = 85*pi/180;
+Nt=86;
+theta = linspace(thetamin,thetamax,Nt);
+
+%{
 theta = 0*pi/180;
 Nt=1;
-
+%}
 %{
 theta = [0.1 1 3]*pi/180;
 Nt = 3;
@@ -155,9 +155,9 @@ set(gca,'fontsize', 16)
 
 hold off
 
-%{
+
 figure(1);
-pcolor(lambda/1000,theta*180/pi,transpose(Rsum))
+pcolor(lambda/1000,theta*180/pi,transpose(1-Rsum-Tsum))
 
 xlabel('lambda, mkm');
 ylabel('theta, deg');
@@ -165,10 +165,10 @@ colormap('jet');
 colorbar;
 set(gca,'fontsize', 16)
 shading flat
-caxis([0 1])
+%caxis([0 1])
 colorbar
 hold off
-
+%{
 a = periodx;
 
 c = physconst('LightSpeed');
