@@ -4,15 +4,11 @@ clear all
 
 N = 3;                %number of Fourier orders
 L = 2;                 %number of layers
-<<<<<<< HEAD
+
 periodx = 360;  %period of periodic layer
 periody = 360;  %period of periodic layer
 r = 134;        %disc radius
-=======
-periodx = 420;  %period of periodic layer
-periody = 420;  %period of periodic layer
-r = 184;        %disc radius
->>>>>>> b9a438f0ce9aadf00055bcb4fd97fe1595a4a1dd
+
 a = periodx;  
 h = zeros(L,1);
 h(2) = 250;
@@ -23,25 +19,7 @@ Mr = (r/a)*M;
 
 i0 = 1+floor(M/2);
 j0 = 1+floor(M/2);
-%{
-<<<<<<< HEAD
-Нужно посчитать ещё одну, похожую на метаповерхность №3, токо радиус R = 134 nm. Остальное также:
-a = 360
-H = 360
-R = 134
-n1 = n2 = 1.46
 
-Диапазон от 1300 до 1700, угол от 35 до 80 градусов
-=======
-a = 420
-H = 315
-R = 184
-n1 = 1
-n2 = 1.46
-????????: ?? 1350 ?? 1800, ?? 35 ?? 80. 
->>>>>>> b9a438f0ce9aadf00055bcb4fd97fe1595a4a1dd
-
-%}
 lmin = 1350;
 lmax = 1800;
 Nl=91;
@@ -167,38 +145,17 @@ for i=1:Nl
     end
     lambda(i)
 end
-%{
-<<<<<<< HEAD
-Нужно посчитать ещё одну, похожую на метаповерхность №3, токо радиус R = 134 nm. Остальное также:
-a = 360
-H = 360
-R = 134
-n1 = n2 = 1.46
 
-Диапазон от 1300 до 1700, угол от 35 до 80 градусов
-=======
-a = 420
-H = 315
-R = 184
-n1 = 1
-n2 = 1.46
->>>>>>> b9a438f0ce9aadf00055bcb4fd97fe1595a4a1dd
-%}
 %save('MyMatrix.txt', 'A', '-ascii', '-double', '-tabs')
 %llambda = transpose(lambda);
 %ttheta = transpose(theta);
 %lt = cat(2,llambda,ttheta);
-<<<<<<< HEAD
-save('TE_R_a_360_H_360_R_134_n1_1_46_n2_1_46.txt', 'Rsum', '-ascii', '-double', '-tabs')
-save('TE_phase_a_360_H_360_R_134_n1_1_46_n2_1_46.txt', 'phase_R','-ascii',  '-double', '-tabs')
-save('TE_lambda_theta_a_360_H_360_R_134_n1_1_46_n2_1_46.txt', 'lambda', 'theta','-ascii', '-double', '-tabs')
+
+%save('TE_R_a_360_H_360_R_134_n1_1_46_n2_1_46.txt', 'Rsum', '-ascii', '-double', '-tabs')
+%save('TE_phase_a_360_H_360_R_134_n1_1_46_n2_1_46.txt', 'phase_R','-ascii',  '-double', '-tabs')
+%save('TE_lambda_theta_a_360_H_360_R_134_n1_1_46_n2_1_46.txt', 'lambda', 'theta','-ascii', '-double', '-tabs')
 save('TE_a_360_H_360_R_134_n1_1_46_n2_1_46.mat', 'Rsum', 'phase_R', 'lambda', 'theta')
-=======
-save('TE_R_a_420_H_315_R_184_n1_1_n2_1_46.txt', 'Rsum', '-ascii', '-double', '-tabs')
-save('TE_phase_a_420_H_315_R_184_n1_1_n2_1_46.txt', 'phase_R','-ascii',  '-double', '-tabs')
-save('TE_lambda_theta_a_420_H_315_R_184_n1_1_n2_1_46.txt', 'lambda', 'theta','-ascii', '-double', '-tabs')
-save('TE_a_420_H_315_R_184_n1_1_n2_1_46.mat', 'Rsum', 'phase_R', 'lambda', 'theta')
->>>>>>> b9a438f0ce9aadf00055bcb4fd97fe1595a4a1dd
+
 %{
 figure(1)
 plot(lambda, Rsum, 'g', lambda, Tsum, 'r', 'Linewidth', 2);
