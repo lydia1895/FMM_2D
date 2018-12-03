@@ -10,7 +10,7 @@ L = 1;                 %number of layers
 %? ???????? ???????? ????? ?????? ITO ? ???? ?????????? ??????????? ???????? 1.9.
 %???????? ???? ???? ????????? 530-560 ??.
 
-periodx = 550;  %period of periodic layer
+periodx = 450;  %period of periodic layer
 periody = 3000;  %period of periodic layer
 wx_etched = 100;
 wx_width = periodx - wx_etched;
@@ -19,13 +19,13 @@ h = zeros(L,1);
 h(2) = 250;
 h(1) = 300;       %thickness of periodic layer
 
-M = 90;               %number of modes for Fourier transform of epsilon
+M = 200;               %number of modes for Fourier transform of epsilon
 x = (1:1:M)*periodx/M;
 y = (1:1:M)*periody/M;
 
-lmin = 501;
+lmin = 400;
 lmax = 700;
-Nl=200;
+Nl=100;
 lambda = linspace(lmin,lmax,Nl);
 
 n_air = 1.0;
@@ -143,6 +143,18 @@ set(gca,'fontsize', 16)
 
 hold off
 %}
+%Rsum = Rsum(~isnan(Rsum))
+%Rsum(isnan(Rsum))=0
+figure(1)
+plot(lambda, Rsum, 'r', 'LineWidth', 2)
+axis tight
+ax = gca;
+ax.XAxis.MinorTick = 'on';
+xlabel('lambda, nm')
+ylabel('R')
+set(gca,'fontsize', 16)
+
+hold off
 
 figure(2)
 plot(lambda, 1-Rsum-Tsum, 'r', 'LineWidth', 2)
