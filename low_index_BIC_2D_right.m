@@ -108,9 +108,9 @@ lmin = 1346*10^(-9);
 lmax = 1346.6*10^(-9);
 thetamin = 0.5*pi/180;
 thetamax = 1.5*pi/180;
-lambda = linspace(lmin, lmax, 400);
+lambda = linspace(lmin, lmax, 100);
 [Nll,Nl] = size(lambda);
-theta = linspace(thetamin,thetamax,3);
+theta = linspace(thetamin,thetamax,15);
 [Ntt,Nt]=size(theta);
 %theta = [0.1 0.5 1]*pi/180;
 %Nt=3;
@@ -228,7 +228,7 @@ data = cat(2,llambda,Rsum(:,1));
 for i=2:Nt
     data = cat(2,data,Rsum(:,i));
 end
-save('5_layers_05_to_15.mat','data');
+%save('5_layers_05_to_15.mat','data');
 
 
 

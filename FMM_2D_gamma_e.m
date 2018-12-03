@@ -92,6 +92,5 @@ end
 pplus = diag(pplusv);
 pminus = diag(pminusv);
 
-gammaminus
 
 end

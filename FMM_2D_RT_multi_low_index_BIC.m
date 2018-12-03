@@ -1,6 +1,6 @@
-function [eta_R, eta_T, eta_R_full, eta_T_full] = FMM_1D_TE_RT_multi(eps11,eps22,eps33,...
-        periodx, periody,...
-        h, lambda, theta, phi, refIndices, N, M, L, polarization)
+function [eta_R, eta_R_another_top] = FMM_2D_RT_multi(eps11,eps22,eps33,...
+    periodx, periody, h, lambda, theta, phi, refIndices, N, M, L,polarization,...
+    layers, optional_top_layer, eps11_top, eps22_top, eps33_top)
 %
 % INPUT:
 % <epsilon>: vector with permitivity distribution
@@ -44,26 +44,70 @@ for i = 1:(2*N+1)
     for j=1:(2*N+1)
         m = i+(2*N+1)*(j-1);
         beta(m,m) = beta_v(i);
-        alpha(m,m) = alpha_v(j);       
+        alpha(m,m) = alpha_v(j);
     end
 end
 
 W = zeros(4*NN,4*NN,L);
 pplus = zeros(2*NN,2*NN,L);
 pminus = zeros(2*NN,2*NN,L);
+%gamma = zeros(4*NN,4*NN,L);
 
 
 for i=1:L
-    [Wt, pplust, pminust] = FMM_2D_gamma_e(eps11(:,:,i),eps22(:,:,i),eps33(:,:,i),...
-        alpha, beta, h(i),lambda,N);
-    %[gammat, Wt, pplust, pminust, eps] = FMM_1D_TE_RT_beta_e(alpha, beta,
-    %epsilon(:,:,i), periodx, periody, h(i), lambda, theta, phi, refIndices, N, M);
-    W(:,:,i) = Wt;
-    pplus(:,:,i) = pplust;
-    pminus(:,:,i) = pminust;
+    if (i>1)
+        title = 'unique';
+        for j=1:(i-1)
+            if strcmp (layers(i,:),layers(j,:))==1
+                title = 'copy';
+                W(:,:,i) = W(:,:,j);
+                pplus(:,:,i) = pplus(:,:,j);
+                pminus(:,:,i) = pminus(:,:,j);
+                break
+            end
+        end
+        if strcmp(title,'unique')
+            [Wt, gammaplus, gammaminus] = FMM_2D_gamma_e_new_1_4_matrix...
+                (eps11(:,:,i),eps22(:,:,i),eps33(:,:,i),alpha, beta,lambda,N);
+            W(:,:,i) = Wt;
+            
+            pplusv = zeros(2*NN,1);
+            pminusv = zeros(2*NN,1);
+            for m=1:(2*NN)
+                pplusv(m) = exp(1i*gammaplus(m)*h(i));
+                pminusv(m) = exp(1i*gammaminus(m)*h(i));
+            end
+            pplus(:,:,i) = diag(pplusv);
+            pminus(:,:,i) = diag(pminusv);
+           
+        end
+    else
+        [Wt, gammaplus, gammaminus] = FMM_2D_gamma_e_new_1_4_matrix...
+            (eps11(:,:,i),eps22(:,:,i),eps33(:,:,i),alpha, beta,lambda,N);
+        W(:,:,i) = Wt;
+        pplusv = zeros(2*NN,1);
+        pminusv = zeros(2*NN,1);
+        for m=1:(2*NN)
+            pplusv(m) = exp(1i*gammaplus(m)*h(i));
+            pminusv(m) = exp(1i*gammaminus(m)*h(i));
+        end
+        pplus(:,:,i) = diag(pplusv);
+        pminus(:,:,i) = diag(pminusv);
+    end
 end
-%eps22=0;
-%eps33=0;
+
+if strcmp(optional_top_layer,'yes')==1
+    [W_top, gammaplus, gammaminus] = FMM_2D_gamma_e_new_1_4_matrix...
+            (eps11_top,eps22_top,eps33_top,alpha, beta,lambda,N);
+        pplusv = zeros(2*NN,1);
+        pminusv = zeros(2*NN,1);
+        for m=1:(2*NN)
+            pplusv(m) = exp(1i*gammaplus(m)*h(L));
+            pminusv(m) = exp(1i*gammaminus(m)*h(L));
+        end
+        pplus_top = diag(pplusv);
+        pminus_top = diag(pminusv);
+end
 
 kz1v = zeros(NN,1);
 kz2v = zeros(NN,1);
@@ -78,7 +122,7 @@ C2 = zeros(NN,NN);
 for i = 1:(2*N+1)
     for j=1:(2*N+1)
         m = i+(2*N+1)*(j-1);
-        %beta(i+(2*N+1)*(j-1),i+(2*N+1)*(j-1)) = beta_v(i);    
+        %beta(i+(2*N+1)*(j-1),i+(2*N+1)*(j-1)) = beta_v(i);
         
         kz1v(m) = ( k1^2 - (alpha_v(j))^2 - (beta_v(i))^2 )^(1/2);
         kz2v(m) = ( k2^2 - (alpha_v(j))^2 - (beta_v(i))^2 )^(1/2);
@@ -111,7 +155,7 @@ K2 = cat(1, K2_1, K2_2, K2_3, K2_4);   %'0' in Chapter 13, Li
 
 
 
-
+%{
 Smin1 = eye(4*NN,4*NN);
 S0 = new_recursion(Smin1, K2, W(:,:,1), eye(2*NN,2*NN), pminus(:,:,1), N);
 Stemp = S0;
@@ -122,8 +166,8 @@ if L>1
     end
 end
 Stotal = new_recursion(Stemp, W(:,:,L), K1, pplus(:,:,L), eye(2*NN,2*NN), N);
+%}
 
-%{
 Smin1 = eye(4*NN,4*NN);
 Rudmin1 = zeros(2*NN,2*NN);
 Rud0 = new_recursion_refl_only(Rudmin1, K2, W(:,:,1), eye(2*NN,2*NN), pminus(:,:,1), N);
@@ -132,20 +176,33 @@ if L>1
     for i=1:(L-1)
         Rudi = new_recursion_refl_only(Rudtemp, W(:,:,i), W(:,:,i+1), pplus(:,:,i), pminus(:,:,i+1), N);
         Rudtemp = Rudi;
+        %%%%%
+        if i==(L-2)
+            Rud_except_top=Rudtemp;
+        end
+        %%%%%
     end
 end
 Rudtotal = new_recursion_refl_only(Rudtemp, W(:,:,L), K1, pplus(:,:,L), eye(2*NN,2*NN), N);
-%}
+
+if strcmp(optional_top_layer,'yes')==1
+    i=L-1;
+    Rudi = new_recursion_refl_only(Rud_except_top, W(:,:,i), W_top, pplus(:,:,i), pminus_top, N);
+    Rudtemp = Rudi;
+
+Rudtotal_another_top = new_recursion_refl_only(Rudtemp, W_top, K1, pplus_top, eye(2*NN,2*NN), N);
+end
+
 
 i = N+1;
 j = N+1;
 nul = i+(2*N+1)*(j-1);
-if strcmp(polarization,'TE')==1
+if strcmp (polarization,'TE')==1
     %TE modes
     I1 = -sin(phi);
     I2 = cos(phi);
 end
-if strcmp(polarization,'TM')==1
+if strcmp (polarization,'TM')==1
     %TM modes
     I1 = cos(phi)*cos(theta);
     I2 = sin(phi)*cos(theta);
@@ -156,13 +213,13 @@ I2=I2/sqrt(norm);
 
 u01 = zeros(NN,1);
 u02 = zeros(NN,1);
-       
+
 dlast1 = zeros(NN,1);
 dlast2 = zeros(NN,1);
 dlast1(nul) = I1*exp(1j*gamma01*sum(h));
 dlast2(nul) = I2*exp(1j*gamma01*sum(h));
 delta = cat(1,u01,u02,dlast1,dlast2);
-%{
+
 dlast = cat(1,dlast1,dlast2);
 u = Rudtotal*dlast;
 R1 = zeros(NN);
@@ -171,36 +228,44 @@ for i=1:NN
     R1(i) = u(i)/exp(1j*kz1v(i)*(sum(h)-h(L)));
     R2(i) = u(i+NN)/exp(1j*kz1v(i)*(sum(h)-h(L)));
 end
-%}
+
+if strcmp(optional_top_layer,'yes')==1
+    u_another_top = Rudtotal_another_top*dlast;
+    R1_another_top = zeros(NN);
+    R2_another_top = zeros(NN);
+    for i=1:NN
+        R1_another_top(i) = u_another_top(i)/exp(1j*kz1v(i)*(sum(h)-h(L)));
+        R2_another_top(i) = u_another_top(i+NN)/exp(1j*kz1v(i)*(sum(h)-h(L)));
+    end
+end
 %R1 = R(1:NN)/exp( 1j*gamma01*(sum(h)-h(L)) );        %u_last
 %R2 = R((NN+1):2*NN)/exp( 1j*gamma01*(sum(h)-h(L)) );
 
-
+%{
 R_T = Stotal*delta;
 R1 = R_T(1:NN)/exp( 1j*gamma01*(sum(h)-h(L)) );        %u_last
 R2 = R_T((NN+1):2*NN)/exp( 1j*gamma01*(sum(h)-h(L)) );
 T1 = R_T((2*NN+1):3*NN);  %d0
 T2 = R_T((3*NN+1):4*NN);
-
+%}
 
 eta_R = zeros(NN,1);
-eta_T = zeros(NN,1);
+
+eta_R_another_top = zeros(NN,1);
 
 for i=1:NN
     if imag(kz1v(i))==0
-    eta_R(i) = A1(i,i)*(abs(R2(i)))^2 + B1(i,i)*(abs(R1(i)))^2 + C1(i,i)*( R1(i)*conj(R2(i))+R2(i)*conj(R1(i)) );
+        eta_R(i) = A1(i,i)*(abs(R2(i)))^2 + B1(i,i)*(abs(R1(i)))^2 +...
+            C1(i,i)*( R1(i)*conj(R2(i))+R2(i)*conj(R1(i)) );
+        if strcmp(optional_top_layer,'yes')==1
+            eta_R_another_top(i) = A1(i,i)*(abs(R2_another_top(i)))^2 + B1(i,i)*(abs(R1_another_top(i)))^2 +...
+                C1(i,i)*( R1_another_top(i)*conj(R2_another_top(i))+...
+                R2_another_top(i)*conj(R1_another_top(i)) );
+        end
     end
-    if imag(kz2v(i))==0
-    eta_T(i) = A2(i,i)*(abs(T2(i)))^2 + B2(i,i)*(abs(T1(i)))^2 + C2(i,i)*( T1(i)*conj(T2(i))+T2(i)*conj(T1(i)) );
-    end
-end
-for i=1:NN
-    
-    eta_R_full(i) = A1(i,i)*(abs(R2(i)))^2 + B1(i,i)*(abs(R1(i)))^2 +...
-        C1(i,i)*( R1(i)*conj(R2(i))+R2(i)*conj(R1(i)) );
-    eta_T_full(i) = A2(i,i)*(abs(T2(i)))^2 + B2(i,i)*(abs(T1(i)))^2 +...
-        C2(i,i)*( T1(i)*conj(T2(i))+T2(i)*conj(T1(i)) );
-    
+    %if imag(kz2v(i))==0
+    %eta_T(i) = A2(i,i)*(abs(T2(i)))^2 + B2(i,i)*(abs(T1(i)))^2 + C2(i,i)*( T1(i)*conj(T2(i))+T2(i)*conj(T1(i)) );
+    %end
 end
 
 end
