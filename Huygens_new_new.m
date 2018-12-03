@@ -4,9 +4,11 @@ clear all
 
 N = 3;                %number of Fourier orders
 L = 2;                 %number of layers
-periodx = 420;  %period of periodic layer
-periody = 420;  %period of periodic layer
-r = 184;        %disc radius
+
+periodx = 360;  %period of periodic layer
+periody = 360;  %period of periodic layer
+r = 134;        %disc radius
+
 a = periodx;  
 h = zeros(L,1);
 h(2) = 250;
@@ -17,15 +19,7 @@ Mr = (r/a)*M;
 
 i0 = 1+floor(M/2);
 j0 = 1+floor(M/2);
-%{
-a = 420
-H = 315
-R = 184
-n1 = 1
-n2 = 1.46
-????????: ?? 1350 ?? 1800, ?? 35 ?? 80. 
 
-%}
 lmin = 1350;
 lmax = 1800;
 Nl=91;
@@ -151,21 +145,17 @@ for i=1:Nl
     end
     lambda(i)
 end
-%{
-a = 420
-H = 315
-R = 184
-n1 = 1
-n2 = 1.46
-%}
+
 %save('MyMatrix.txt', 'A', '-ascii', '-double', '-tabs')
 %llambda = transpose(lambda);
 %ttheta = transpose(theta);
 %lt = cat(2,llambda,ttheta);
-save('TE_R_a_420_H_315_R_184_n1_1_n2_1_46.txt', 'Rsum', '-ascii', '-double', '-tabs')
-save('TE_phase_a_420_H_315_R_184_n1_1_n2_1_46.txt', 'phase_R','-ascii',  '-double', '-tabs')
-save('TE_lambda_theta_a_420_H_315_R_184_n1_1_n2_1_46.txt', 'lambda', 'theta','-ascii', '-double', '-tabs')
-save('TE_a_420_H_315_R_184_n1_1_n2_1_46.mat', 'Rsum', 'phase_R', 'lambda', 'theta')
+
+%save('TE_R_a_360_H_360_R_134_n1_1_46_n2_1_46.txt', 'Rsum', '-ascii', '-double', '-tabs')
+%save('TE_phase_a_360_H_360_R_134_n1_1_46_n2_1_46.txt', 'phase_R','-ascii',  '-double', '-tabs')
+%save('TE_lambda_theta_a_360_H_360_R_134_n1_1_46_n2_1_46.txt', 'lambda', 'theta','-ascii', '-double', '-tabs')
+save('TE_a_360_H_360_R_134_n1_1_46_n2_1_46.mat', 'Rsum', 'phase_R', 'lambda', 'theta')
+
 %{
 figure(1)
 plot(lambda, Rsum, 'g', lambda, Tsum, 'r', 'Linewidth', 2);
