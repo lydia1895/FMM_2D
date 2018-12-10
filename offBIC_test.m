@@ -6,15 +6,15 @@ L = 1;
 h = zeros(L,1);
 th = 212*10^(-9);
 h(1) = th;
-periodx = th;
+periodx = 1.8*th;
 dx = periodx*0.45;
-periody = th;
+periody = 1.8*th;
 M = 3001;
 x = (1:1:M)*periodx/M;
 epsilon = zeros(M, M, L);
 
 
-nlattice = 2.125;
+nlattice = 1.608;
 epslattice = nlattice^2;
 nmedia = 1.46;
 epsmedia = nmedia^2;
@@ -23,24 +23,24 @@ refIndices = [nmedia nmedia];
 for i=1:M
     for j=1:M
     if x(i)<dx
-        epsilon(j,i,2) = epslattice;
+        epsilon(j,i,1) = epslattice;
     end
     end
 end
 
 
-lmin = 330*10^(-9);
-lmax = 370*10^(-9);
+lmin = 475*10^(-9);
+lmax = 485*10^(-9);
 lambda = linspace(lmin, lmax, 70);
 [Nll,Nl] = size(lambda);
 
 
-kx = 9.06*10^6;
-l1 = 489*10^(-9);
-theta1 = asin(kx*l1/(2*pi))
-thetamin = 0;
-thetamax = 5*pi/180;
-theta = linspace(thetamin,thetamax,20);
+kx = 3.14*10^6;
+l1 = 825*10^(-9);
+theta1 = asin(kx*l1/(2*pi*nmedia))
+thetamin = 8*pi/180;
+thetamax = 9.5*pi/180;
+theta = linspace(thetamin,thetamax,21);
 [Ntt,Nt] = size(theta);
 
 phi = 0*pi/180;
@@ -58,8 +58,9 @@ eps33=zeros(P*Q,P*Q,L);
 for i=1:L
 [eps11(:,:,i), eps22(:,:,i), eps33(:,:,i)] = FMM_eps123_new(epsilon(:,:,i),N,M);
 end
-polarization = 'TE';
+polarization = 'TM';
 for i=1:Nl
+    i
     for j=1:Nt
     for k=1:Np 
     [eta_R1, eta_T1] = FMM_1D_TE_RT_multi(eps11,eps22,eps33,...
@@ -126,5 +127,8 @@ pcolor(XI,YI,ZI)
 shading flat
 colormap('jet');
 colorbar;
+%caxis([0 0.4])
 hold off
+
+%save('period_th_1_8_nlattice_2_08.mat','theta','lambda','Rsum','nlattice','nmedia','periodx','dx')
 

@@ -24,13 +24,13 @@ refIndices = [nmedia nmedia];
 for i=1:M
     for j=1:M
     if x(i)<dx
-        epsilon(j,i,2) = epslattice;
+        epsilon(j,i,1) = epslattice;
     end
     end
 end
 
-l1 = 489*10^(-9);
-dl = 0.05*10^(-9);
+l1 = 347*10^(-9);
+dl = 0.5*10^(-9);
 l2 = l1+dl;
 lambda = [l1 l2];
 c = 3*10^8;
@@ -40,11 +40,13 @@ dw = w2-w1;
 Nl = 2;
 
 kx = 9.06*10^6;
-theta = asin(kx*l1/(2*pi));
-%thetamax = thetamin + 1*pi/180;
-Nt = 1;
-%theta = linspace(thetamax,thetamin,6);
-%[Ntt,Nt] = size(theta);
+%theta = asin(kx*l1/(2*pi*nmedia));
+theta1 = 0*pi/180;
+thetamin = theta1;% - 2*pi/180;
+thetamax = theta1 + 0.2*pi/180;
+%Nt = 1;
+theta = linspace(thetamin,thetamax,6);
+[Ntt,Nt] = size(theta);
 
 
 phi = 0*pi/180;
@@ -62,15 +64,18 @@ for i=1:L
 [eps11(:,:,i), eps22(:,:,i), eps33(:,:,i)] = FMM_eps123_new(epsilon(:,:,i),N,M);
 end
 polarization = 'TM';
-N_iterations = 12;
+N_iterations = 6;
 
 w_eig = zeros(Nt,1);
 dw00 = zeros(N_iterations, Nt);
+dw0 = w1;
 
 for j=1:Nt
     for k=1:Np
+        %ii=0
         for ii=1:N_iterations
-    
+        %while ((abs(dw0/w1)>10^(-5)) && ii<5)
+        %    ii=ii+1
             for i=1:Nl
         
                 [R] = FMM_1D_TE_RT_multi_mode_solver(eps11,eps22,eps33,...
@@ -99,6 +104,7 @@ for j=1:Nt
             lambda = [l1 l2];
             
             dw00(ii,j) = dw0;
+            
         end
         w_eig(j) = w1;
     end
@@ -106,8 +112,8 @@ for j=1:Nt
 end
 lambda_eig = c./w_eig;
 k0=2*pi./real(lambda_eig);
-kx = k0*periodx*sin(theta')*cos(phi);
-plot(kx,w_eig,'b','Linewidth',2);
+%kx = k0*periodx*sin(theta')*cos(phi);
+%plot(kx,w_eig,'b','Linewidth',2);
 
 theta_new = theta*180/pi;
 %plot(theta_new, lambda_eig*10^9)

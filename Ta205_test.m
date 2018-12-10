@@ -31,13 +31,13 @@ for i=1:M
 end
 
 lmin = 763*10^(-9);
-lmax = 790*10^(-9);
-lambda = linspace(lmin, lmax, 70);
+lmax = 870*10^(-9);
+lambda = linspace(lmin, lmax, 80);
 [Nll,Nl] = size(lambda);
 
 thetamin = 0*pi/180;
 thetamax = 4*pi/180;
-theta = linspace(thetamin,thetamax,12);
+theta = linspace(thetamin,thetamax,8);
 [Ntt,Nt] = size(theta);
 
 phi = 0*pi/180;
