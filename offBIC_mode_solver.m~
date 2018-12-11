@@ -30,7 +30,6 @@ for i=1:M
 end
 
 l1 = 567*10^(-9);
-ll1 = l1;
 dl = (0.05+0.05j)*10^(-9);
 l2 = l1+dl;
 lambda = [l1 l2];
@@ -42,12 +41,12 @@ Nl = 2;
 
 kx = 9.06*10^6;
 %theta = asin(kx*l1/(2*pi*nmedia));
-theta1 = 0.5*pi/180;
-thetamin = theta1;% - 2*pi/180;
-thetamax = theta1 + 0.5*pi/180;
-%Nt = 1;
-theta = linspace(thetamin,thetamax,10);
-[Ntt,Nt] = size(theta);
+theta = 0.5*pi/180;
+%thetamin = theta1;% - 2*pi/180;
+%thetamax = theta1 + 0.3*pi/180;
+Nt = 1;
+%theta = linspace(thetamin,thetamax,6);
+%[Ntt,Nt] = size(theta);
 
 
 phi = 0*pi/180;
@@ -65,7 +64,7 @@ for i=1:L
 [eps11(:,:,i), eps22(:,:,i), eps33(:,:,i)] = FMM_eps123_new(epsilon(:,:,i),N,M);
 end
 polarization = 'TM';
-N_iterations = 7;
+N_iterations = 5;
 
 w_eig = zeros(Nt,1);
 dw00 = zeros(N_iterations, Nt);
@@ -99,7 +98,7 @@ for j=1:Nt
             w_array = sort(diag(D))
             dw0 = min(w_array);
             if ii==1
-                dw0 = w_array(7);
+                dw0 = w_array(6);
             end
             w1 = w1 + dw0;
             w2 = w1 + dw;
@@ -112,7 +111,6 @@ for j=1:Nt
             
         end
         w_eig(j) = w1;
-        lambda = [ll1 ll1+dl];
     end
     
 end
@@ -124,18 +122,6 @@ k0=2*pi./real(lambda_eig);
 theta_new = theta*180/pi;
 %plot(theta_new, lambda_eig*10^9)
 plot(lambda_eig*10^9,theta_new)
-theta_new1 = theta_new(1:7);
-lambda_eig1 = lambda_eig(1:7)*10^9;
-plot(lambda_eig1*10^9,theta_new1)
-
-p=polyfit(transpose(theta_new1),lambda_eig1,4);
-x1 = theta_new1;
-y1=polyval(p,x1);
-figure(1)
-plot(lambda_eig1,theta_new1,'o')
-hold on
-plot(y1,x1,'r')
-hold off
 %{
 k0=2*pi/lambda;
 kx = sin(theta')*cos(phi);

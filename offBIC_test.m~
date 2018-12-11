@@ -31,8 +31,8 @@ end
 
 %lmin = periodx+1*10^(-9);
 %lmax = periodx+300*10^(-9);
-lmin = 0.560*10^(-6);
-lmax = 0.580*10^(-6);
+lmin = 0.566*10^(-6);
+lmax = 0.567*10^(-6);
 lambda = linspace(lmin, lmax, 50);
 [Nll,Nl] = size(lambda);
 
@@ -42,7 +42,7 @@ l1 = 825*10^(-9);
 theta1 = asin(kx*l1/(2*pi*nmedia))
 thetamin = 0.5*pi/180;
 thetamax = 0.7*pi/180;
-theta = linspace(thetamin,thetamax,20);
+theta = linspace(thetamin,thetamax,30);
 [Ntt,Nt] = size(theta);
 
 phi = 0*pi/180;
@@ -60,7 +60,7 @@ eps33=zeros(P*Q,P*Q,L);
 for i=1:L
 [eps11(:,:,i), eps22(:,:,i), eps33(:,:,i)] = FMM_eps123_new(epsilon(:,:,i),N,M);
 end
-polarization = 'TE';
+polarization = 'TM';
 for i=1:Nl
     i
     for j=1:Nt
