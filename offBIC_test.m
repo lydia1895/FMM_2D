@@ -6,15 +6,15 @@ L = 1;
 h = zeros(L,1);
 th = 212*10^(-9);
 h(1) = th;
-periodx = 1.8*th;
-dx = periodx*0.45;
-periody = 1.8*th;
+periodx = th;
+dx = 0.7*periodx;
+periody = th;
 M = 3001;
 x = (1:1:M)*periodx/M;
 epsilon = zeros(M, M, L);
 
 
-nlattice = 1.608;
+nlattice = 1.88;
 epslattice = nlattice^2;
 nmedia = 1.46;
 epsmedia = nmedia^2;
@@ -31,17 +31,17 @@ end
 
 %lmin = periodx+1*10^(-9);
 %lmax = periodx+300*10^(-9);
-lmin = 0.560*10^(-6);
-lmax = 0.580*10^(-6);
-lambda = linspace(lmin, lmax, 50);
+lmin = 0.39*10^(-6);
+lmax = 0.395*10^(-6);
+lambda = linspace(lmin, lmax, 30);
 [Nll,Nl] = size(lambda);
 
 
 kx = 3.14*10^6;
 l1 = 825*10^(-9);
 theta1 = asin(kx*l1/(2*pi*nmedia))
-thetamin = 0.5*pi/180;
-thetamax = 0.7*pi/180;
+thetamin = 7*pi/180;
+thetamax = 7.5*pi/180;
 theta = linspace(thetamin,thetamax,20);
 [Ntt,Nt] = size(theta);
 
@@ -120,10 +120,15 @@ colormap gray;
 %pcolor(theta*180/pi,lambda,Rsum);
 %imagesc(theta*180/pi,lambda,Rsum);
 %set(gca,'Yscale','linear','Ydir','normal');
-tl = linspace(lmin,lmax,400);
+%{
+tl = linspace(lmin,lmax,300);
 tt = linspace(thetamin, thetamax,30)*180/pi;
 [XI,YI] = meshgrid(tl,tt);
 ZI = griddata(theta*180/pi,lambda,Rsum,YI,XI);
+%}
+XI = lambda;
+YI = theta*180/pi;
+ZI = transpose(Rsum);
 figure;
 pcolor(XI,YI,ZI)
 shading flat
