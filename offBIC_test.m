@@ -6,15 +6,15 @@ L = 1;
 h = zeros(L,1);
 th = 212*10^(-9);
 h(1) = th;
-periodx = th;
-dx = 0.7*periodx;
-periody = th;
+periodx = 10^(-6);
+dx = 720*10^(-9);
+periody = 10^(-6);
 M = 3001;
 x = (1:1:M)*periodx/M;
 epsilon = zeros(M, M, L);
 
 
-nlattice = 1.88;
+nlattice = 1.608;
 epslattice = nlattice^2;
 nmedia = 1.46;
 epsmedia = nmedia^2;
@@ -29,20 +29,20 @@ for i=1:M
 end
 
 
-%lmin = periodx+1*10^(-9);
-%lmax = periodx+300*10^(-9);
-lmin = 0.39*10^(-6);
-lmax = 0.395*10^(-6);
-lambda = linspace(lmin, lmax, 30);
+%lmin = periodx+300*10^(-9);
+%lmax = periodx+600*10^(-9);
+lmin = 1.45*10^(-6);
+lmax = 1.6*10^(-6);
+lambda = linspace(lmin, lmax, 150);
 [Nll,Nl] = size(lambda);
 
 
 kx = 3.14*10^6;
 l1 = 825*10^(-9);
 theta1 = asin(kx*l1/(2*pi*nmedia))
-thetamin = 7*pi/180;
-thetamax = 7.5*pi/180;
-theta = linspace(thetamin,thetamax,20);
+thetamin = 0*pi/180;
+thetamax = 10*pi/180;
+theta = linspace(thetamin,thetamax,40);
 [Ntt,Nt] = size(theta);
 
 phi = 0*pi/180;
@@ -60,7 +60,7 @@ eps33=zeros(P*Q,P*Q,L);
 for i=1:L
 [eps11(:,:,i), eps22(:,:,i), eps33(:,:,i)] = FMM_eps123_new(epsilon(:,:,i),N,M);
 end
-polarization = 'TE';
+polarization = 'TM';
 for i=1:Nl
     i
     for j=1:Nt
