@@ -6,15 +6,15 @@ L = 1;
 h = zeros(L,1);
 th = 212*10^(-9);
 h(1) = th;
-periodx = 10^(-6);
-dx = 720*10^(-9);
-periody = 10^(-6);
+periodx = 1.8*th;
+dx = 0.45*periodx;
+periody = periodx;
 M = 3001;
 x = (1:1:M)*periodx/M;
 epsilon = zeros(M, M, L);
 
 
-nlattice = 1.608;
+nlattice = 2.08;
 epslattice = nlattice^2;
 nmedia = 1.46;
 epsmedia = nmedia^2;
@@ -31,18 +31,18 @@ end
 
 %lmin = periodx+300*10^(-9);
 %lmax = periodx+600*10^(-9);
-lmin = 1.45*10^(-6);
-lmax = 1.6*10^(-6);
-lambda = linspace(lmin, lmax, 150);
+lmin = 0.71*10^(-6);
+lmax = 0.81*10^(-6);
+lambda = linspace(lmin, lmax, 100);
 [Nll,Nl] = size(lambda);
 
 
 kx = 3.14*10^6;
 l1 = 825*10^(-9);
 theta1 = asin(kx*l1/(2*pi*nmedia))
-thetamin = 0*pi/180;
-thetamax = 10*pi/180;
-theta = linspace(thetamin,thetamax,40);
+thetamin = 12*pi/180;
+thetamax = 24*pi/180;
+theta = linspace(thetamin,thetamax,36);
 [Ntt,Nt] = size(theta);
 
 phi = 0*pi/180;
