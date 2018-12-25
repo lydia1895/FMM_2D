@@ -15,7 +15,7 @@ x = (1:1:M)*periodx/M;
 epsilon = zeros(M, M, L);
 
 
-nlattice = 1.608;
+nlattice = 2.08;
 epslattice = nlattice^2;
 nmedia = 1.46;
 epsmedia = nmedia^2;
@@ -29,9 +29,9 @@ for i=1:M
     end
 end
 
-l1 = 567*10^(-9);
+l1 = 760*10^(-9);
 ll1 = l1;
-dl = (0.05+0.06j)*10^(-9);
+dl = (0.05+0.1j)*10^(-9);
 l2 = l1+dl;
 lambda = [l1 l2];
 c = 3*10^8;
@@ -42,11 +42,11 @@ Nl = 2;
 
 kx = 9.06*10^6;
 %theta = asin(kx*l1/(2*pi*nmedia));
-theta1 = 0.5*pi/180;
+theta1 = 18*pi/180;
 thetamin = theta1;% - 2*pi/180;
 thetamax = theta1 + 0.5*pi/180;
 %Nt = 1;
-theta = linspace(thetamin,thetamax,15);
+theta = linspace(thetamin,thetamax,10);
 [Ntt,Nt] = size(theta);
 
 
@@ -99,7 +99,7 @@ for j=1:Nt
             w_array = sort(diag(D))
             dw0 = min(w_array);
             if ii==1
-                dw0 = w_array(7);
+                dw0 = w_array(31);
             end
             w1 = w1 + dw0;
             w2 = w1 + dw;
@@ -124,8 +124,8 @@ k0=2*pi./real(lambda_eig);
 theta_new = theta*180/pi;
 %plot(theta_new, lambda_eig*10^9)
 plot(lambda_eig*10^9,theta_new)
-theta_new1 = theta_new(1:11);
-lambda_eig1 = lambda_eig(1:11)*10^9;
+theta_new1 = theta_new(2:10);
+lambda_eig1 = lambda_eig(2:10)*10^9;
 plot(lambda_eig1*10^9,theta_new1)
 
 p=polyfit(transpose(theta_new1),lambda_eig1,4);
