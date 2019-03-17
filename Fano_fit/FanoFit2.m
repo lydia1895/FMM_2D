@@ -2,34 +2,32 @@
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 
-load('5_layers_05_to_15.mat','data')
-N=length(data(1,:))
+%load('5_layers_05_to_15.mat','data')
+%N=length(data(1,:))
+N = length(R);
 
+%thetamin = 0.5;
+%thetamax = 5;
+%theta_full = linspace(thetamin,thetamax,10);
 
-thetamin = 0.5;
-thetamax = 5;
-theta_full = linspace(thetamin,thetamax,10);
-
-xxdata=data(:,1);
-left = 1.3464;
-right = 1.3466;
+xxdata=lambda;
+left = 0.79;
+right = 0.81;
 [elem,num_elem]=min(abs(xxdata-left));
 [elem2,num_elem_2]=min(abs(xxdata-right));
 
-ddata = data(num_elem:num_elem_2,:);
 
-i=3;
 
-xdata=ddata(:,1);
-ydata=ddata(:,i+1)-min(ddata(:,i+1));
+xdata = transpose(lambda(num_elem:num_elem_2));
+ydata=R(num_elem:num_elem_2)-min(R(num_elem:num_elem_2));
 
 deriv = diff(ydata)./diff(xdata);
     [~,ind]= min(deriv);
     center = xdata(ind);
     
-    width = 0.00001;
-    q = -4;
-    H = 0.35;
+    width = 0.001;
+    q = -100;
+    H = 0.1;
     A = 0;
     B = 0;%-13.3;
     C = 0;
@@ -44,12 +42,14 @@ x=lsqcurvefit(Fano,x0,xdata,ydata);
   f=figure;
   plot(xdata,ydata,'-k',xdata,Fano(x,xdata),'-r');
   hold off
-  Q(i) = abs(x(1)/x(2));
+  Q = abs(x(1)/x(2));
 
 
 %g=figure
 %plot(theta_full,Q,'-sg','Linewidth',2)
-theta(i) = theta_full(i);
-save('5_layers_05_to_15_results.mat','theta_full','Q','i')
+%theta(i) = theta_full(i);
+%save('5_layers_05_to_15_results.mat','theta_full','Q','i')
 %end
+theta_Q = theta1(13);
+%save('2_08_a_th_1.8_Q.mat','theta_Q','Q');
 

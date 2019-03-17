@@ -1,7 +1,7 @@
 clc
 clear all
 
-N = 6;                %number of Fourier orders
+N = 4;                %number of Fourier orders
 
 L = 1;
 h = zeros(L,1);
@@ -31,7 +31,9 @@ end
 
 l1 = 710*10^(-9);
 ll1 = l1;
+
 dl = (0.01+0.0000007j)*10^(-9);
+
 l2 = l1+dl;
 lambda = [l1 l2];
 c = 3*10^8;
@@ -64,7 +66,9 @@ for i=1:L
 [eps11(:,:,i), eps22(:,:,i), eps33(:,:,i)] = FMM_eps123_new(epsilon(:,:,i),N,M);
 end
 polarization = 'TM';
-N_iterations = 6;
+
+N_iterations = 5;
+
 
 w_eig = zeros(Nt,1);
 dw00 = zeros(N_iterations, Nt);
@@ -126,8 +130,10 @@ k0=2*pi./real(lambda_eig);
 theta_new = theta*180/pi;
 %plot(theta_new, lambda_eig*10^9)
 plot(lambda_eig*10^9,theta_new)
+
 theta_new1 = theta_new;
 lambda_eig1 = lambda_eig;
+
 
 p=polyfit(transpose(theta_new1),lambda_eig1,4);
 x1 = theta_new1;

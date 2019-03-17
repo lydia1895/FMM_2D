@@ -4,18 +4,23 @@ clear all
 N = 3;
 L = 1;
 h = zeros(L,1);
-periodx = 382*10^(-9);  %period of periodic layer
-h(1) = 2.5*periodx;
-dx = 0.45*periodx;
+
+th = 100;
+h(1) = th;
+periodx = 1000;
+dx = 500;
+
 periody = periodx;
 M = 3001;
 x = (1:1:M)*periodx/M;
 epsilon = zeros(M, M, L);
 
 
-nlattice = 2.125;
+
+nlattice = 1.44;
+
 epslattice = nlattice^2;
-nmedia = 1.46;
+nmedia = 1.0;
 epsmedia = nmedia^2;
 epsilon(:,:,1)=epsmedia*ones(M,M,1);
 refIndices = [nmedia nmedia];  
@@ -28,11 +33,12 @@ for i=1:M
 end
 
 
-wmin = 350*10^12;
-wmax = 270*10^12;
-c = 3*10^8;
-lmin = 1100*10^(-9);
-lmax = 1200*10^(-9);
+
+%lmin = periodx+300*10^(-9);
+%lmax = periodx+600*10^(-9);
+lmin = 950;
+lmax = 1050;
+
 lambda = linspace(lmin, lmax, 100);
 [Nll,Nl] = size(lambda);
 
@@ -40,9 +46,11 @@ lambda = linspace(lmin, lmax, 100);
 kx = 3.14*10^6;
 l1 = 825*10^(-9);
 theta1 = asin(kx*l1/(2*pi*nmedia))
-thetamin = 59*pi/180;
-thetamax = 80*pi/180;
-theta = linspace(thetamin,thetamax,100);
+
+thetamin = 0*pi/180;
+thetamax = 3*pi/180;
+theta = linspace(thetamin,thetamax,30);
+
 [Ntt,Nt] = size(theta);
 
 phi = 0*pi/180;
@@ -75,10 +83,6 @@ for i=1:Nl
     end
 end
 
-
-lambda = lambda*10^6;
-lmin = lmin*10^6;
-lmax = lmax*10^6;
 
 figure(5)
 hold on
@@ -137,5 +141,22 @@ colorbar;
 %caxis([0 0.4])
 hold off
 
+
+c = physconst('LightSpeed');
+h = 4.135666 * 10^(-15);
+kx = (2*periodx./lambda)'*sin(theta);
+frequency = (periodx./lambda');
+
+figure(2);
+pcolor(kx,frequency,Rsum)
+xlabel('kx, \pi/a');
+ylabel('frequency, THz');
+colormap('jet');
+colorbar;
+set(gca,'fontsize', 16)
+shading flat
+caxis([0 1])
+colorbar
+hold on
 %save('period_th_1_8_nlattice_1_608.mat','theta','lambda','Rsum','nlattice','nmedia','periodx','dx')
 

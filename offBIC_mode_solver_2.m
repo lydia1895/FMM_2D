@@ -1,7 +1,7 @@
 clc
 clear all
 
-N = 6;                %number of Fourier orders
+N = 4;                %number of Fourier orders
 
 L = 1;
 h = zeros(L,1);
@@ -15,7 +15,7 @@ x = (1:1:M)*periodx/M;
 epsilon = zeros(M, M, L);
 
 
-nlattice = 1.608;
+nlattice = 2.08;
 epslattice = nlattice^2;
 nmedia = 1.46;
 epsmedia = nmedia^2;
@@ -29,8 +29,9 @@ for i=1:M
     end
 end
 
-l1 = 567*10^(-9);
-dl = (0.05+0.05j)*10^(-9);
+l1 = 760*10^(-9);
+ll1 = l1;
+dl = (0.05+0.1j)*10^(-9);
 l2 = l1+dl;
 lambda = [l1 l2];
 c = 3*10^8;
@@ -41,12 +42,12 @@ Nl = 2;
 
 kx = 9.06*10^6;
 %theta = asin(kx*l1/(2*pi*nmedia));
-theta = 0.5*pi/180;
-%thetamin = theta1;% - 2*pi/180;
-%thetamax = theta1 + 0.3*pi/180;
-Nt = 1;
-%theta = linspace(thetamin,thetamax,6);
-%[Ntt,Nt] = size(theta);
+theta1 = 18*pi/180;
+thetamin = theta1;% - 2*pi/180;
+thetamax = theta1 + 0.5*pi/180;
+%Nt = 1;
+theta = linspace(thetamin,thetamax,10);
+[Ntt,Nt] = size(theta);
 
 
 phi = 0*pi/180;
@@ -98,7 +99,7 @@ for j=1:Nt
             w_array = sort(diag(D))
             dw0 = min(w_array);
             if ii==1
-                dw0 = w_array(6);
+                dw0 = w_array(31);
             end
             w1 = w1 + dw0;
             w2 = w1 + dw;
@@ -111,6 +112,7 @@ for j=1:Nt
             
         end
         w_eig(j) = w1;
+        lambda = [ll1 ll1+dl];
     end
     
 end
@@ -122,6 +124,18 @@ k0=2*pi./real(lambda_eig);
 theta_new = theta*180/pi;
 %plot(theta_new, lambda_eig*10^9)
 plot(lambda_eig*10^9,theta_new)
+theta_new1 = theta_new(2:10);
+lambda_eig1 = lambda_eig(2:10)*10^9;
+plot(lambda_eig1*10^9,theta_new1)
+
+p=polyfit(transpose(theta_new1),lambda_eig1,4);
+x1 = theta_new1;
+y1=polyval(p,x1);
+figure(1)
+plot(lambda_eig1,theta_new1,'o')
+hold on
+plot(y1,x1,'r')
+hold off
 %{
 k0=2*pi/lambda;
 kx = sin(theta')*cos(phi);
