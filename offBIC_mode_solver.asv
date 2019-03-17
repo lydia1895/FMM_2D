@@ -31,7 +31,7 @@ end
 
 l1 = 710*10^(-9);
 ll1 = l1;
-dl = (0.01+0.0000007j)*10^(-9);
+dl = (0.05+0.05j)*10^(-9);
 l2 = l1+dl;
 lambda = [l1 l2];
 c = 3*10^8;
@@ -44,9 +44,9 @@ kx = 9.06*10^6;
 %theta = asin(kx*l1/(2*pi*nmedia));
 theta1 = 12*pi/180;
 thetamin = theta1;% - 2*pi/180;
-thetamax = theta1 + 0.5*pi/180;
+thetamax = theta1 + 12*pi/180;
 %Nt = 1;
-theta = linspace(thetamin,thetamax,15);
+theta = linspace(thetamin,thetamax,10);
 [Ntt,Nt] = size(theta);
 
 phi = 0*pi/180;
@@ -55,7 +55,6 @@ Np=1;
 P = 2*N+1;
 Q = 2*N+1;
 R = 1;
-NN=P*Q;
 
 eps11=zeros(P*Q,P*Q,L);
 eps22=zeros(P*Q,P*Q,L);
@@ -64,7 +63,7 @@ for i=1:L
 [eps11(:,:,i), eps22(:,:,i), eps33(:,:,i)] = FMM_eps123_new(epsilon(:,:,i),N,M);
 end
 polarization = 'TM';
-N_iterations = 6;
+N_iterations = 7;
 
 w_eig = zeros(Nt,1);
 dw00 = zeros(N_iterations, Nt);
@@ -84,24 +83,22 @@ for j=1:Nt
                     periodx, periody, h, lambda(i), theta(j), phi(k), refIndices, N, M, L, polarization);
             
                 if i==1
-                    S0 = S;
+                    S0 = R;
                 else
-                    S1 = S;
+                    S1 = R;
                 end
             end
             dS = (S1-S0)/dw;
-            dR = -S0\dS/S0;
-            I = eye(4*NN,4*NN);
-            R0 = I/S0;
+            dR = -S\dS/S;
             MAXDR(ii) = max(dR(:));
             
             A=-dR\R0;
             [V, D] = eig(A);
             
-            w_array = sort(diag(D));
+            w_array = sort(diag(D))
             dw0 = min(w_array);
             if ii==1
-                dw0 = w_array(1);
+                dw0 = w_array(7);
             end
             w1 = w1 + dw0;
             w2 = w1 + dw;
@@ -126,8 +123,9 @@ k0=2*pi./real(lambda_eig);
 theta_new = theta*180/pi;
 %plot(theta_new, lambda_eig*10^9)
 plot(lambda_eig*10^9,theta_new)
-theta_new1 = theta_new;
-lambda_eig1 = lambda_eig;
+theta_new1 = theta_new(1:7);
+lambda_eig1 = lambda_eig(1:7)*10^9;
+plot(lambda_eig1*10^9,theta_new1)
 
 p=polyfit(transpose(theta_new1),lambda_eig1,4);
 x1 = theta_new1;

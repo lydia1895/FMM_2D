@@ -1,4 +1,4 @@
-function [Rtotal] = FMM_1D_TE_RT_multi_mode_solver(eps11,eps22,eps33,...
+function [Stotal] = FMM_1D_TE_RT_multi_mode_solver(eps11,eps22,eps33,...
         periodx, periody,...
         h, lambda, theta, phi, refIndices, N, M, L, polarization)
 %
@@ -122,7 +122,6 @@ if L>1
     end
 end
 Stotal = new_recursion(Stemp, W(:,:,L), K1, pplus(:,:,L), eye(2*NN,2*NN), N);
-Rtotal = Stotal\eye(4*NN,4*NN);
 %{
 Smin1 = eye(4*NN,4*NN);
 Rudmin1 = zeros(2*NN,2*NN);
